@@ -40,13 +40,13 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* 強制套用注音字體 */
+        /* 強制套用注音字體 (特別加上 .btn 確保按鈕也有變) */
         .role-info h2, .role-info p, .menu-title, .menu-sub, .q-text, .q-sub, .opt-btn, .hint-toggle, .use-zhuyin, .btn {
             font-family: 'ZhuyinFont', "Microsoft JhengHei", sans-serif !important;
             font-weight: normal;
         }
 
-        /* 防作弊：黑體 */
+        /* 防作弊：考注音時，題目大字強制用黑體 */
         .no-zhuyin {
             font-family: "Microsoft JhengHei", -apple-system, sans-serif !important;
         }
@@ -78,14 +78,14 @@
         .quiz-container { width: 95%; max-width: 900px; display: flex; flex-direction: column; align-items: center; padding-top: 20px; }
         .card { background: white; width: 100%; padding: 40px 20px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; margin-bottom: 30px; position: relative; box-sizing: border-box; }
         
-        /* 題目大字 (純淨版) */
+        /* 題目大字 (垂直堆疊：上字下標題) */
         .q-text { 
             font-size: 100px; 
             color: #333; 
             margin: 20px 0; 
             min-height: 120px; 
             display: flex; 
-            flex-direction: column; /* 垂直堆疊：字在上，副標在下 */
+            flex-direction: column; 
             align-items: center; 
             justify-content: center; 
             line-height: 1.2; 
@@ -93,14 +93,14 @@
         
         .q-sub { font-size: 24px; color: #666; margin-top: 5px; margin-bottom: 15px; white-space: nowrap; }
 
-        /* 選項排版 (橫向排列) */
+        /* 選項排版 (橫向一列) */
         .options-grid { 
             display: flex; 
             width: 100%; 
             gap: 20px; 
-            flex-direction: row;       /* 橫向 */
-            justify-content: center;   /* 居中 */
-            flex-wrap: wrap;           /* 自動換行 */
+            flex-direction: row;       /* 橫向排列 */
+            justify-content: center;   /* 居中對齊 */
+            flex-wrap: wrap;           /* 平板夠寬就一列，不夠寬就換行 */
         }
 
         .opt-btn { 
@@ -116,9 +116,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            flex: 1;                   
-            min-width: 150px;          
-            max-width: 300px;          
+            flex: 1;                   /* 平均分配寬度 */
+            min-width: 150px;          /* 最小寬度 */
+            max-width: 300px;          /* 最大寬度 */
+            
+            /* 確保內容是標準橫排 */
+            writing-mode: horizontal-tb; 
         }
 
         .opt-btn:active { transform: translateY(6px); box-shadow: none; }
@@ -235,286 +238,4 @@
 
         function showAngusSubject(subject) {
             const container = document.getElementById('app-container');
-            container.innerHTML = `<div class="menu-list" id="menu-list"></div>`;
-            const list = document.getElementById('menu-list');
-
-            addBackBtn(list, "⬅️ 回去選別的", () => showAngusCategories());
-
-            if (subject === 'zhuyin') {
-                addMenuItem(list, "注音符號找找看", "", () => startQuiz('a_zhuyin'));
-            } else if (subject === 'math') {
-                DB.angus.mathUnits.forEach(u => addMenuItem(list, u.name, u.desc, () => startMath(u)));
-            } else if (subject === 'english') {
-                addMenuItem(list, "簡單單字", "", () => startQuiz('a_english'));
-            }
-        }
-
-        function addMenuItem(parent, title, sub, action, color) {
-            const btn = document.createElement('button');
-            btn.className = 'menu-item btn';
-            if (color) btn.style.borderLeftColor = color; 
-            
-            let htmlContent = (sub && sub !== "") ? 
-                `<div><span class="menu-title">${title}</span><span class="menu-sub">${sub}</span></div>` :
-                `<span class="menu-title" style="margin:0;">${title}</span>`;
-
-            btn.innerHTML = htmlContent;
-            btn.onclick = action;
-            parent.appendChild(btn);
-        }
-
-        function addBackBtn(parent, title, action) {
-            const btn = document.createElement('button');
-            btn.className = 'menu-item btn';
-            btn.style.background = '#f8f9fa'; 
-            btn.style.borderLeft = 'none';
-            btn.style.boxShadow = 'none';
-            btn.style.border = '2px dashed #ddd';
-            btn.innerHTML = `<span class="menu-title" style="font-size:24px; color:#888; margin:0;">${title}</span>`;
-            btn.onclick = action;
-            parent.appendChild(btn);
-        }
-
-        function startQuiz(type) {
-            score = 0;
-            document.getElementById('score').innerText = 0;
-            const container = document.getElementById('app-container');
-            container.innerHTML = `
-                <div class="quiz-container">
-                    <div class="card">
-                        <button class="icon-btn" onclick="speakCurrent()">🔊</button>
-                        <div id="q-display" class="q-text"></div>
-                        <div id="q-sub-display" class="q-sub"></div>
-                        <div id="hint-btn" class="hidden"></div>
-                    </div>
-                    <div id="opt-container" class="options-grid"></div>
-                    <button class="btn" onclick="backToMenu()" style="margin-top:30px; color:#888; font-size:20px; background:none;">⬅️ 結束練習</button>
-                </div>`;
-            nextQuizQuestion(type);
-        }
-
-        function nextQuizQuestion(type) {
-            let qData, options;
-            
-            if (type === 'h_zhuyin') { qData = getRandom(DB.hunter.chinese_zhuyin); options = qData.opts; }
-            else if (type === 'h_char') { qData = getRandom(DB.hunter.chinese_char); options = qData.opts; }
-            else if (type === 'h_english') { 
-                qData = getRandom(DB.hunter.english); 
-                let wrongs = DB.hunter.english.filter(x => x.q !== qData.q).map(x => x.q);
-                options = shuffle([qData.q, ...shuffle(wrongs).slice(0,3)]);
-            }
-            else if (type === 'a_zhuyin') {
-                let char = getRandom(DB.angus.zhuyin);
-                qData = { q: "?", a: char, audio: char, speak: "請找出 "+char };
-                let wrongs = DB.angus.zhuyin.filter(x => x !== char);
-                options = shuffle([char, ...shuffle(wrongs).slice(0,3)]);
-            }
-            else if (type === 'a_english') {
-                qData = getRandom(DB.angus.english);
-                let wrongs = DB.angus.english.filter(x => x.q !== qData.q).map(x => x.q);
-                options = shuffle([qData.q, ...shuffle(wrongs).slice(0,3)]);
-            }
-
-            currentQ = qData;
-            const display = document.getElementById('q-display');
-            const subDisplay = document.getElementById('q-sub-display');
-            
-            // 清空副標題
-            subDisplay.innerHTML = "";
-
-            // 🚫 防作弊核心
-            if (type === 'h_zhuyin') {
-                display.className = 'q-text no-zhuyin'; // 考拼音時，大字用黑體
-                display.innerHTML = qData.q;
-            } else {
-                display.className = 'q-text use-zhuyin'; // 其他時候用注音體
-                if (type === 'h_char') {
-                    display.innerHTML = qData.q;
-                    subDisplay.innerText = qData.sub;
-                }
-                else if (type.includes('english')) display.innerHTML = currentRole==='hunter' ? "???" : qData.q;
-                else if (type === 'a_zhuyin') display.innerHTML = "?";
-            }
-
-            const hintDiv = document.getElementById('hint-btn');
-            if (type.includes('english') && qData.hint) {
-                hintDiv.className = 'btn hint-toggle';
-                hintDiv.innerText = "💡 看提示";
-                hintDiv.onclick = () => { display.innerText = qData.q; hintDiv.innerText = qData.hint; };
-                hintDiv.classList.remove('hidden');
-            } else { hintDiv.classList.add('hidden'); }
-
-            setTimeout(() => speakCurrent(), 300);
-
-            const optContainer = document.getElementById('opt-container');
-            optContainer.innerHTML = '';
-            options.forEach(opt => {
-                let btn = document.createElement('button');
-                btn.className = 'opt-btn btn';
-                btn.innerText = opt;
-                let correctAns = qData.a || qData.q;
-                btn.onclick = () => checkAnswer(btn, opt, correctAns, type);
-                optContainer.appendChild(btn);
-            });
-        }
-
-        function checkAnswer(btn, selected, correct, type) {
-            if (selected === correct) {
-                btn.classList.add('correct');
-                score++;
-                document.getElementById('score').innerText = score;
-                setTimeout(() => nextQuizQuestion(type), 800);
-            } else {
-                btn.classList.add('wrong');
-            }
-        }
-
-        function startMath(config) {
-            score = 0;
-            document.getElementById('score').innerText = 0;
-            mathConfig = config;
-            const container = document.getElementById('app-container');
-            container.innerHTML = `
-                <div class="quiz-container">
-                    <canvas id="clock-canvas" width="280" height="280" class="hidden"></canvas>
-                    <div class="card" style="padding: 15px;">
-                        <div id="math-q" class="q-text"></div>
-                        <div id="math-sub" class="q-sub"></div>
-                        <div id="math-input" style="font-size:60px !important; color:#4a90e2; border-bottom:3px solid #ddd; height:70px; width:100%; margin-top:10px;"></div>
-                    </div>
-                    <div class="numpad">
-                        <button class="num-btn" onclick="inputNum(1)">1</button>
-                        <button class="num-btn" onclick="inputNum(2)">2</button>
-                        <button class="num-btn" onclick="inputNum(3)">3</button>
-                        <button class="num-btn" onclick="inputNum(4)">4</button>
-                        <button class="num-btn" onclick="inputNum(5)">5</button>
-                        <button class="num-btn" onclick="inputNum(6)">6</button>
-                        <button class="num-btn" onclick="inputNum(7)">7</button>
-                        <button class="num-btn" onclick="inputNum(8)">8</button>
-                        <button class="num-btn" onclick="inputNum(9)">9</button>
-                        <button class="num-btn" onclick="inputNum('C')" style="color:orange;">C</button>
-                        <button class="num-btn" onclick="inputNum(0)">0</button>
-                        <button class="num-btn action-btn" onclick="checkMath()">OK</button>
-                        <button id="half-btn" class="num-btn half-btn hidden" onclick="inputNum(':30')">🕒 半 (:30)</button>
-                    </div>
-                    <button class="btn" onclick="backToMenu()" style="margin-top:30px; color:#888; font-size:20px; background:none;">⬅️ 結束練習</button>
-                </div>`;
-            nextMathQuestion();
-        }
-
-        function nextMathQuestion() {
-            inputBuffer = "";
-            document.getElementById('math-input').innerText = "";
-            document.getElementById('half-btn').classList.add('hidden');
-            document.getElementById('clock-canvas').classList.add('hidden');
-            document.getElementById('math-q').classList.remove('hidden');
-
-            let config = mathConfig;
-            let qText = "", qSub = "", ans = "";
-            let currentType = config.type;
-            if (config.type === 'mix') {
-                const types = ['add', 'sub', 'decomp', 'clock'];
-                currentType = types[Math.floor(Math.random() * types.length)];
-            }
-
-            if (currentType === 'add') {
-                let a = Math.floor(Math.random() * (config.range + 1));
-                let b = Math.floor(Math.random() * (config.range + 1 - a));
-                qText = `${a} + ${b} = ?`; ans = (a+b).toString();
-            } else if (currentType === 'sub') {
-                let a = Math.floor(Math.random() * (config.range + 1));
-                let b = Math.floor(Math.random() * (a + 1));
-                qText = `${a} - ${b} = ?`; ans = (a-b).toString();
-            } else if (currentType === 'decomp') {
-                let total = Math.floor(Math.random() * (config.range - 1)) + 2; 
-                let p1 = Math.floor(Math.random() * total);
-                qText = `${total} 可以分成`; qSub = `${p1} 和 ?`; ans = (total - p1).toString();
-            } else if (currentType === 'count') {
-                let count = Math.floor(Math.random() * config.range) + 1;
-                let icons = ['🍎', '🍌', '🍇', '🍊', '🍉', '🍒', '🐶', '🐱', '🐰', '🚗', '✈️', '⚽', '⭐️', '🍪', '🎈'];
-                let icon = icons[Math.floor(Math.random() * icons.length)];
-                qText = `<div style="display:flex; flex-wrap:wrap; justify-content:center; gap:5px;">${icon.repeat(count)}</div>`;
-                qSub = "有幾個?"; ans = count.toString();
-            } else if (currentType === 'clock') {
-                document.getElementById('clock-canvas').classList.remove('hidden');
-                document.getElementById('math-q').classList.add('hidden');
-                let h = Math.floor(Math.random() * 12) + 1;
-                let m = 0;
-                let isHalf = (config.range === 'half' || (config.type === 'mix' && Math.random() > 0.5)) && Math.random() > 0.5;
-                if (isHalf) m = 30;
-                drawClock(h, m);
-                qSub = "現在是幾點？";
-                ans = m === 30 ? `${h}:30` : `${h}:00`;
-                if (m === 30) document.getElementById('half-btn').classList.remove('hidden');
-            }
-
-            currentQ = { ans: ans, type: currentType };
-            document.getElementById('math-q').innerHTML = qText;
-            document.getElementById('math-sub').innerText = qSub;
-        }
-
-        function inputNum(val) {
-            if (val === 'C') { inputBuffer = ""; }
-            else {
-                if (val === ':30' && (inputBuffer.includes(':') || inputBuffer === '')) return;
-                if (inputBuffer.length > 5) return;
-                inputBuffer += val;
-            }
-            document.getElementById('math-input').innerText = inputBuffer;
-        }
-
-        function checkMath() {
-            let isCorrect = false;
-            let correctAns = currentQ.ans;
-            if ((currentQ.type === 'clock' || mathConfig.type === 'mix') && correctAns.endsWith(":00")) {
-                if (inputBuffer === correctAns || inputBuffer === correctAns.split(":")[0]) isCorrect = true;
-            } else {
-                if (inputBuffer === correctAns) isCorrect = true;
-            }
-
-            const inputDiv = document.getElementById('math-input');
-            if (isCorrect) {
-                inputDiv.style.color = "#28a745";
-                score++;
-                document.getElementById('score').innerText = score;
-                setTimeout(() => nextMathQuestion(), 600);
-            } else {
-                inputDiv.style.color = "#dc3545";
-                setTimeout(() => { inputBuffer = ""; inputDiv.innerText = ""; inputDiv.style.color = "#4a90e2"; }, 500);
-            }
-        }
-
-        function backToMenu() {
-            if (currentRole === 'hunter') { showHunterCategories(); } 
-            else { showAngusCategories(); }
-        }
-
-        function speakCurrent() {
-            if (!currentQ) return;
-            let text = currentQ.speak || currentQ.audio || currentQ.q;
-            if (!text || text.includes('<div') || text.includes('?')) return; 
-            let u = new SpeechSynthesisUtterance(text);
-            u.lang = /[a-zA-Z]/.test(text) ? 'en-US' : 'zh-TW';
-            u.rate = 0.8;
-            window.speechSynthesis.cancel();
-            window.speechSynthesis.speak(u);
-        }
-        function getRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-        function shuffle(arr) { return arr.sort(() => Math.random() - 0.5); }
-        function drawClock(hour, minute) {
-            const canvas = document.getElementById('clock-canvas');
-            const ctx = canvas.getContext('2d');
-            const r = canvas.width / 2;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.translate(r, r);
-            ctx.beginPath(); ctx.arc(0, 0, r - 5, 0, 2 * Math.PI); ctx.fillStyle = "white"; ctx.fill(); ctx.strokeStyle = "#333"; ctx.lineWidth = 4; ctx.stroke();
-            for(let i=0; i<12; i++){ ctx.beginPath(); ctx.rotate(Math.PI / 6); ctx.moveTo(0, - (r - 15)); ctx.lineTo(0, - (r - 5)); ctx.stroke(); }
-            let hAngle = (hour % 12) * Math.PI / 6 + (minute * Math.PI / (6 * 60));
-            let mAngle = minute * Math.PI / 30;
-            ctx.strokeStyle = "#333"; ctx.lineWidth = 8; ctx.lineCap = "round"; ctx.beginPath(); ctx.rotate(hAngle); ctx.moveTo(0, 0); ctx.lineTo(0, -r * 0.5); ctx.stroke(); ctx.rotate(-hAngle);
-            ctx.strokeStyle = "#e74c3c"; ctx.lineWidth = 5; ctx.beginPath(); ctx.rotate(mAngle); ctx.moveTo(0, 0); ctx.lineTo(0, -r * 0.75); ctx.stroke(); ctx.rotate(-mAngle);
-            ctx.beginPath(); ctx.arc(0, 0, 6, 0, 2*Math.PI); ctx.fillStyle = "#333"; ctx.fill(); ctx.translate(-r, -r);
-        }
-    </script>
-</body>
-</html>
+            container.innerHTML = `<div

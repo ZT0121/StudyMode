@@ -78,7 +78,7 @@
         .quiz-container { width: 95%; max-width: 900px; display: flex; flex-direction: column; align-items: center; padding-top: 20px; }
         .card { background: white; width: 100%; padding: 40px 20px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; margin-bottom: 30px; position: relative; box-sizing: border-box; }
         
-        /* 🛠️ 修正1：題目大字 (允許換行) */
+        /* 題目大字 */
         .q-text { 
             font-size: 100px; 
             color: #333; 
@@ -89,28 +89,27 @@
             align-items: center; 
             justify-content: center; 
             line-height: 1.2; 
-            word-wrap: break-word; /* 讓弟弟的數數圖案可以折行 */
-            white-space: normal;   /* 恢復正常換行 */
+            word-wrap: break-word; /* 允許換行 (修復弟弟數數) */
+            white-space: normal; 
         }
         
         .q-sub { font-size: 24px; color: #666; margin-top: 5px; margin-bottom: 15px; white-space: nowrap; }
 
-        /* 選項排版 (RWD) */
+        /* 選項排版 (RWD 橫向) */
         .options-grid { 
             display: flex; 
             width: 100%; 
             gap: 15px; 
             flex-direction: row; 
             justify-content: center; 
-            flex-wrap: wrap; /* 讓選項太多時自動掉下來，不要擠扁 */
+            flex-wrap: wrap; 
         }
 
-        /* 🛠️ 修正2：選項按鈕 (維持大字體，允許彈性寬度) */
         .opt-btn { 
             background: white; 
             border: 4px solid #f0f0f0; 
             padding: 10px; 
-            font-size: 52px;       /* 維持大字體！不縮小！ */
+            font-size: 36px;       /* 字體縮小 (修復哥哥注音超出) */
             border-radius: 20px; 
             color: #555; 
             min-height: 120px; 
@@ -119,11 +118,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            
-            flex: 1 1 auto;        /* 自動分配剩餘空間 */
-            min-width: 140px;      /* 最小寬度，低於這個寬度就會換行 */
-            max-width: 100%;       /* 允許填滿整行 */
-            white-space: nowrap;   /* 選項文字不換行 */
+            flex: 1 1 auto;        /* 彈性寬度 */
+            min-width: 140px;          
+            max-width: 100%;
+            white-space: nowrap;   /* 禁止換行 (確保注音不亂跑) */
         }
 
         .opt-btn:active { transform: translateY(6px); box-shadow: none; }
@@ -171,6 +169,9 @@
     <script src="questions.js"></script>
 
     <script>
+        // ==========================================
+        // ⚙️ 邏輯控制中心 (LOGIC) - v5.1 英文邏輯修正
+        // ==========================================
         let currentRole = null;
         let score = 0;
         let currentQ = null;
@@ -185,6 +186,7 @@
             
             document.body.className = role === 'hunter' ? 'hunter-app' : 'angus-app';
             document.getElementById('nav-title').innerText = role === 'hunter' ? 'Hunter 專屬' : 'Angus 專屬';
+            
             if (role === 'hunter') { showHunterCategories(); } 
             else { showAngusCategories(); }
         }
@@ -359,24 +361,32 @@
             const subDisplay = document.getElementById('q-sub-display');
             subDisplay.innerHTML = "";
 
+            // 🛠️ 修正：顯示邏輯判斷
             if (type === 'h_zhuyin') {
                 display.className = 'q-text no-zhuyin'; 
                 display.innerHTML = qData.q;
             } else {
                 display.className = 'q-text use-zhuyin'; 
-                if (type.includes('english')) display.innerHTML = currentRole==='hunter' ? "???" : qData.q;
-                else if (type === 'a_zhuyin') display.innerHTML = "?";
+                
+                if (type.includes('english')) {
+                    // 💡 關鍵修正：如果是英文，哥哥顯示 ??? (聽)，弟弟顯示圖案 (看)
+                    display.innerHTML = (currentRole === 'hunter') ? "???" : qData.hint;
+                } else if (type === 'a_zhuyin') {
+                    display.innerHTML = "?";
+                }
             }
 
-            // 智慧字體縮放
+            // 字體縮放
             let textLen = display.innerText.length;
             if (textLen <= 1) display.style.fontSize = "100px";
             else if (textLen === 2) display.style.fontSize = "80px";
             else if (textLen === 3) display.style.fontSize = "60px";
             else display.style.fontSize = "45px";
 
+            // 🛠️ 修正：提示按鈕邏輯
             const hintDiv = document.getElementById('hint-btn');
-            if (type.includes('english') && qData.hint) {
+            // 只有哥哥的英文才需要提示 (弟弟直接看圖了)
+            if (type === 'h_english' && qData.hint) {
                 hintDiv.className = 'btn hint-toggle';
                 hintDiv.innerText = "💡 看提示";
                 hintDiv.onclick = () => { display.innerText = qData.hint; };
@@ -391,6 +401,11 @@
                 let btn = document.createElement('button');
                 btn.className = 'opt-btn btn';
                 btn.innerText = opt;
+                
+                // 選項字體微調
+                if (opt.length > 4) btn.style.fontSize = "24px";
+                else btn.style.fontSize = "36px";
+
                 let correctAns = qData.a || qData.q;
                 btn.onclick = () => checkAnswer(btn, opt, correctAns, type);
                 optContainer.appendChild(btn);
@@ -469,13 +484,12 @@
                 let p1 = Math.floor(Math.random() * total);
                 qText = `${total} 可以分成`; qSub = `${p1} 和 ?`; ans = (total - p1).toString();
             } 
-            // 🛠️ 數數修正：圖案內容允許換行，且使用 flex 讓它們自然排列
+            // 🛠️ 數數修正：圖案內容允許換行
             else if (currentType === 'count') {
                 let count = Math.floor(Math.random() * config.range) + 1;
                 let icons = ['🍎', '🍌', '🍇', '🍊', '🍉', '🍒', '🐶', '🐱', '🐰', '🚗', '✈️', '⚽', '⭐️', '🍪', '🎈'];
                 let icon = icons[Math.floor(Math.random() * icons.length)];
                 
-                // 這裡的 style 很重要：flex-wrap: wrap 確保圖案多時會折行
                 qText = `<div style="display:flex; flex-wrap:wrap; justify-content:center; gap:5px; line-height:1.2;">${icon.repeat(count)}</div>`;
                 qSub = "有幾個?"; ans = count.toString();
             } 

@@ -117,6 +117,7 @@ const DB = {
             { id: "h_u6", name: "加一加", desc:"10以內的加法", type: "add", range: 10 },
             { id: "h_u8", name: "減一減", desc:"10以內的減法", type: "sub", range: 10 },
             { id: "h_u9", name: "讀鐘錶", desc:"整點與半點", type: "clock", range: "half" }
+            { id: "h_mix", name: "期末大挑戰", desc:"綜合練習", type: "mix", range: 10 }
         ]
     },
 

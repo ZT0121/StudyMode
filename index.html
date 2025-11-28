@@ -56,7 +56,7 @@
             font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
             font-weight: bold;
             margin: 0 5px;
-            vertical-align: baseline; /* 對齊修正 */
+            vertical-align: baseline;
         }
 
         /* 通用元件 */
@@ -152,6 +152,12 @@
     <script src="questions.js"></script>
 
     <script>
+        // --- 防呆檢查：如果 questions.js 沒讀到，或是語法錯誤，這裡會攔截 ---
+        if (typeof DB === 'undefined') {
+            document.body.innerHTML = "<h1 style='padding:50px; text-align:center;'>⚠️ 讀取題庫失敗<br>請檢查 questions.js 是否存在且無語法錯誤。</h1>";
+            throw new Error("DB is undefined");
+        }
+
         let currentRole = null;
         let score = 0;
         let currentQ = null;
@@ -195,9 +201,14 @@
             addBackBtn(list, "⬅️ 回科目選單", () => showHunterCategories());
 
             if (subject === 'chinese') {
-                addMenuItem(list, "圈詞注音練習", "聽音選注音", () => startQuiz('h_zhuyin'));
+                // 檢查是否有資料
+                if (DB.hunter.chinese_zhuyin && DB.hunter.chinese_zhuyin.length > 0) {
+                    addMenuItem(list, "圈詞注音練習", "聽音選注音", () => startQuiz('h_zhuyin'));
+                } else {
+                    alert("注意：國語題庫似乎是空的？");
+                }
             } else if (subject === 'math') {
-                if(DB && DB.hunter && DB.hunter.mathUnits) {
+                if(DB.hunter.mathUnits) {
                     DB.hunter.mathUnits.forEach(u => addMenuItem(list, u.name, u.desc, () => startMath(u)));
                 }
             } else if (subject === 'english') {
@@ -223,7 +234,7 @@
             if (subject === 'zhuyin') {
                 addMenuItem(list, "注音符號找找看", "", () => startQuiz('a_zhuyin'));
             } else if (subject === 'math') {
-                if(DB && DB.angus && DB.angus.mathUnits) {
+                if(DB.angus.mathUnits) {
                     DB.angus.mathUnits.forEach(u => addMenuItem(list, u.name, u.desc, () => startMath(u)));
                 }
             } else if (subject === 'english') {
@@ -255,22 +266,24 @@
             parent.appendChild(btn);
         }
 
-        function generateConfusingOptions(correctZhuyin) {
-            const confusionMap = { 'ㄣ':'ㄥ', 'ㄥ':'ㄣ', 'ㄢ':'ㄤ', 'ㄤ':'ㄢ', 'ㄓ':'ㄗ', 'ㄗ':'ㄓ', 'ㄕ':'ㄙ', 'ㄙ':'ㄕ', 'ㄔ':'ㄘ', 'ㄘ':'ㄔ', 'ㄌ':'ㄖ', 'ㄖ':'ㄌ', 'ㄅ':'ㄆ', 'ㄆ':'ㄅ', 'ㄉ':'ㄊ', 'ㄊ':'ㄉ', 'ㄍ':'ㄎ', 'ㄎ':'ㄍ', 'ㄐ':'ㄑ', 'ㄑ':'ㄐ', 'ㄨ':'ㄩ', 'ㄩ':'ㄨ', 'ㄟ':'ㄝ', 'ㄝ':'ㄟ', 'ㄡ':'ㄛ', 'ㄛ':'ㄡ', 'ˊ':'ˇ', 'ˇ':'ˋ', 'ˋ':'˙', '˙':'' };
+        // ==========================================
+        // 🧠 穩健的選項生成器 (從現有題庫隨機抓)
+        // ==========================================
+        function generateOptionsFromDB(correctAnswer, sourceArray, count = 3) {
             let options = new Set();
-            options.add(correctZhuyin);
-            let toneDistractor = correctZhuyin;
-            const tones = ['ˊ', 'ˇ', 'ˋ', '˙'];
-            if (tones.includes(correctZhuyin.slice(-1))) { toneDistractor = correctZhuyin.slice(0, -1) + (correctZhuyin.slice(-1) === 'ˊ' ? 'ˇ' : 'ˊ'); } else { toneDistractor = correctZhuyin + 'ˊ'; }
-            options.add(toneDistractor);
-            let confusingDistractor = correctZhuyin;
-            for (let char of correctZhuyin) {
-                if (confusionMap[char]) { confusingDistractor = correctZhuyin.replace(char, confusionMap[char]); options.add(confusingDistractor); break; }
-            }
-            while (options.size < 3) {
-                let randomZ = DB.angus.zhuyin[Math.floor(Math.random() * DB.angus.zhuyin.length)];
-                if(correctZhuyin.includes(' ')) { randomZ += " " + DB.angus.zhuyin[Math.floor(Math.random() * DB.angus.zhuyin.length)]; }
-                options.add(randomZ + (Math.random()>0.5 ? 'ˊ' : ''));
+            options.add(correctAnswer); // 先加入正確答案
+
+            let safeLimit = 100; // 避免死循環
+            while (options.size < count && safeLimit > 0) {
+                safeLimit--;
+                // 從題庫隨機抓一個
+                let randomItem = sourceArray[Math.floor(Math.random() * sourceArray.length)];
+                // 如果是字串陣列(弟弟注音)，直接用；如果是物件(哥哥國語)，取 .a
+                let val = (typeof randomItem === 'string') ? randomItem : randomItem.a;
+                
+                if (val && val !== correctAnswer) {
+                    options.add(val);
+                }
             }
             return Array.from(options);
         }
@@ -296,26 +309,40 @@
         function nextQuizQuestion(type) {
             let qData, options;
             
-            if (type === 'h_zhuyin') { 
-                do { qData = getRandom(DB.hunter.chinese_zhuyin); } while (currentQ && qData.q === currentQ.q && DB.hunter.chinese_zhuyin.length > 1);
-                options = shuffle(generateConfusingOptions(qData.a));
-            }
-            else if (type === 'h_english') { 
-                do { qData = getRandom(DB.hunter.english); } while (currentQ && qData.q === currentQ.q && DB.hunter.english.length > 1);
-                let wrongs = DB.hunter.english.filter(x => x.q !== qData.q).map(x => x.q);
-                options = shuffle([qData.q, ...shuffle(wrongs).slice(0,3)]);
-            }
-            else if (type === 'a_zhuyin') {
-                let char;
-                do { char = getRandom(DB.angus.zhuyin); } while (currentQ && char === currentQ.a && DB.angus.zhuyin.length > 1);
-                qData = { q: "?", a: char, audio: char, speak: "請找出 "+char };
-                let wrongs = DB.angus.zhuyin.filter(x => x !== char);
-                options = shuffle([char, ...shuffle(wrongs).slice(0,3)]);
-            }
-            else if (type === 'a_english') {
-                do { qData = getRandom(DB.angus.english); } while (currentQ && qData.q === currentQ.q && DB.angus.english.length > 1);
-                let wrongs = DB.angus.english.filter(x => x.q !== qData.q).map(x => x.q);
-                options = shuffle([qData.q, ...shuffle(wrongs).slice(0,3)]);
+            try {
+                if (type === 'h_zhuyin') { 
+                    // 隨機出題
+                    do { qData = getRandom(DB.hunter.chinese_zhuyin); } 
+                    while (currentQ && qData.q === currentQ.q && DB.hunter.chinese_zhuyin.length > 1);
+                    // 使用新邏輯：從題庫抓錯誤選項 (最安全)
+                    options = shuffle(generateOptionsFromDB(qData.a, DB.hunter.chinese_zhuyin));
+                }
+                else if (type === 'h_english') { 
+                    do { qData = getRandom(DB.hunter.english); }
+                    while (currentQ && qData.q === currentQ.q && DB.hunter.english.length > 1);
+                    // 英文選項邏輯 (4選1)
+                    let wrongs = DB.hunter.english.filter(x => x.q !== qData.q).map(x => x.q);
+                    options = shuffle([qData.q, ...shuffle(wrongs).slice(0,3)]);
+                }
+                else if (type === 'a_zhuyin') {
+                    let char;
+                    do { char = getRandom(DB.angus.zhuyin); } 
+                    while (currentQ && char === currentQ.a && DB.angus.zhuyin.length > 1);
+                    qData = { q: "?", a: char, audio: char, speak: "請找出 "+char };
+                    // 弟弟注音選項 (3選1)
+                    let wrongs = DB.angus.zhuyin.filter(x => x !== char);
+                    options = shuffle([char, ...shuffle(wrongs).slice(0,2)]);
+                }
+                else if (type === 'a_english') {
+                    do { qData = getRandom(DB.angus.english); } 
+                    while (currentQ && qData.q === currentQ.q && DB.angus.english.length > 1);
+                    let wrongs = DB.angus.english.filter(x => x.q !== qData.q).map(x => x.q);
+                    options = shuffle([qData.q, ...shuffle(wrongs).slice(0,3)]);
+                }
+            } catch (e) {
+                console.error("出題錯誤:", e);
+                alert("出題發生錯誤，請檢查題目設定");
+                return;
             }
 
             currentQ = qData;
@@ -356,8 +383,10 @@
                 let btn = document.createElement('button');
                 btn.className = 'opt-btn btn';
                 btn.innerText = opt;
+                
                 if (opt.length > 4) btn.style.fontSize = "24px";
                 else btn.style.fontSize = "36px";
+
                 let correctAns = qData.a || qData.q;
                 btn.onclick = () => checkAnswer(btn, opt, correctAns, type);
                 optContainer.appendChild(btn);
@@ -413,9 +442,10 @@
             document.getElementById('math-input').innerText = "";
             document.getElementById('half-btn').classList.add('hidden');
             document.getElementById('clock-canvas').classList.add('hidden');
-            // 🛠️ 關鍵修正：強制顯示 math-q 容器，避免題目消失
+            
+            // 🛠️ 關鍵修正：強制顯示 math-q 容器
             const mathQ = document.getElementById('math-q');
-            mathQ.classList.remove('hidden');
+            if(mathQ) mathQ.classList.remove('hidden');
 
             let config = mathConfig;
             let qText = "", qSub = "", ans = "";

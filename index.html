@@ -175,7 +175,7 @@
             <div class="role-avatar" style="background:#fff3cd;">👶</div>
             <div class="role-info">
                 <h2>弟弟 Angus</h2>
-                <p>注音、數數、時鐘</p>
+                <p>注音、數󠇡數、時鐘</p>
             </div>
         </div>
     </div>
@@ -236,8 +236,8 @@
             addBackBtn(list, "⬅️ 回科目選單", () => showHunterCategories());
 
             if (subject === 'chinese') {
-                addMenuItem(list, "聽音選注音", () => startQuiz('h_zhuyin'));
-                addMenuItem(list, "部首與筆畫", () => startQuiz('h_char'));
+                addMenuItem(list, "聽音選注音", "", () => startQuiz('h_zhuyin'));
+                addMenuItem(list, "部首與筆畫", "", () => startQuiz('h_char'));
             } else if (subject === 'math') {
                 DB.hunter.mathUnits.forEach(u => addMenuItem(list, u.name, u.desc, () => startMath(u)));
             } else if (subject === 'english') {
@@ -254,7 +254,7 @@
             const list = document.getElementById('menu-list');
 
             addMenuItem(list, "🗣️ 注音", "", () => showAngusSubject('zhuyin'), '#ffd1dc');
-            addMenuItem(list, "🍎 數數", "", () => showAngusSubject('math'), '#fff5ba');
+            addMenuItem(list, "🍎 數󠇡數", "", () => showAngusSubject('math'), '#fff5ba');
             addMenuItem(list, "🐶 英文", "", () => showAngusSubject('english'), '#baffc9');
         }
 

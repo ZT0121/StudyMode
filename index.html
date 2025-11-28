@@ -42,15 +42,22 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* === ❗ 強制套用注音字體 (加入 .btn 修正結束練習按鈕) ❗ === */
+        /* === 強制套用注音字體 === */
         .role-info h2, .role-info p, .menu-title, .menu-sub, .q-text, .q-sub, .opt-btn, .hint-toggle, .use-zhuyin, .btn {
             font-family: 'ZhuyinFont', "Microsoft JhengHei", sans-serif !important;
             font-weight: normal;
         }
 
-        /* === 🚫 特殊用途：強制不顯示注音 (用系統黑體) === */
+        /* === 🚫 防作弊：題目大字強制用黑體 (不顯示注音) === */
         .no-zhuyin {
-            font-family: "Microsoft JhengHei", -apple-system, sans-serif !important;
+            font-family: "Microsoft JhengHei", -apple-system, Helvetica, Arial, sans-serif !important;
+        }
+
+        /* === 📐 注音選項專用：強制直式排列 (解決聲調跑版) === */
+        .vertical-text {
+            writing-mode: vertical-rl; /* 文字由上往下流動 */
+            text-orientation: upright; /* 文字維持正向，不旋轉 */
+            letter-spacing: 0.1em;     /* 稍微拉開間距，比較好看 */
         }
 
         /* 通用元件 */
@@ -86,42 +93,20 @@
         .angus-app { background: var(--angus-bg); }
         
         /* 選單列表 */
-        .menu-list { 
-            display: grid; 
-            grid-template-columns: 1fr; 
-            gap: 20px; 
-            width: 90%; 
-            max-width: 550px; 
-            padding: 20px 0; 
-        }
-
-        .menu-item { 
-            background: white; 
-            padding: 25px; 
-            border-radius: 20px; 
-            text-align: center; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
-            border-left: 10px solid var(--primary); 
-            display: flex !important; 
-            width: 100% !important; 
-            box-sizing: border-box; 
-            min-height: 100px;
-            justify-content: center; 
-            align-items: center; 
-        }
-
+        .menu-list { display: grid; grid-template-columns: 1fr; gap: 20px; width: 90%; max-width: 550px; padding: 20px 0; }
+        .menu-item { background: white; padding: 25px; border-radius: 20px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.05); border-left: 10px solid var(--primary); display: flex !important; width: 100% !important; box-sizing: border-box; min-height: 100px; justify-content: center; align-items: center; }
         .menu-title { font-size: 36px; color: #333; margin: 0; display: inline-block; line-height: 1.4; white-space: nowrap; }
         .menu-sub { font-size: 18px; color: #888; display: block; margin-top: 5px; }
 
-        /* 答題區 - 寬度加大，適應橫排 */
-        .quiz-container { width: 95%; max-width: 800px; display: flex; flex-direction: column; align-items: center; padding-top: 20px; }
-        .card { background: white; width: 100%; padding: 40px 20px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; margin-bottom: 25px; position: relative; box-sizing: border-box; }
+        /* 答題區 */
+        .quiz-container { width: 95%; max-width: 900px; display: flex; flex-direction: column; align-items: center; padding-top: 20px; }
+        .card { background: white; width: 100%; padding: 40px 20px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; margin-bottom: 30px; position: relative; box-sizing: border-box; }
         
         .q-text { 
-            font-size: 80px; 
+            font-size: 100px; 
             color: #333; 
             margin: 20px 0; 
-            min-height: 100px; 
+            min-height: 120px; 
             display: flex; 
             flex-direction: column; 
             align-items: center; 
@@ -129,42 +114,44 @@
             line-height: 1.2; 
         }
         
-        .q-sub { 
-            font-size: 24px; 
-            color: #666; 
-            margin-top: 5px; 
-            margin-bottom: 15px; 
-            white-space: nowrap; 
-        }
+        .q-sub { font-size: 24px; color: #666; margin-top: 5px; margin-bottom: 15px; white-space: nowrap; }
 
-        /* --- 🛠️ 修改這裡：選項改成橫向一列 --- */
+        /* 選項排版 (RWD) */
         .options-grid { 
             display: flex; 
-            flex-direction: row;       /* 橫向排列 */
-            justify-content: center;   /* 居中 */
-            gap: 15px; 
             width: 100%; 
-            flex-wrap: wrap;           /* 空間不夠時自動換行 (保護手機版) */
+            gap: 20px; 
+        }
+
+        /* 手機直式 */
+        @media (max-width: 600px) {
+            .options-grid { flex-direction: column; max-width: 450px; }
+        }
+
+        /* 平板/電腦橫式 */
+        @media (min-width: 601px) {
+            .options-grid { flex-direction: row; justify-content: center; flex-wrap: wrap; }
+            .opt-btn { flex: 1; min-width: 150px; max-width: 300px; }
         }
         
         .opt-btn { 
             background: white; 
             border: 4px solid #f0f0f0; 
-            padding: 15px; 
-            font-size: 42px; 
-            border-radius: 20px; 
+            padding: 10px; 
+            font-size: 52px; 
+            border-radius: 25px; 
             color: #555; 
-            min-height: 100px; 
-            flex: 1;                   /* 讓每個按鈕平均分配寬度 */
-            min-width: 120px;          /* 設定最小寬度，避免太擠 */
-            box-shadow: 0 5px 0 #ddd; 
+            min-height: 140px; 
+            box-shadow: 0 6px 0 #ddd; 
             box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        /* ------------------------------------ */
 
-        .opt-btn:active { transform: translateY(5px); box-shadow: none; }
-        .opt-btn.correct { background: #d4edda; border-color: #28a745; color: #155724; box-shadow: 0 5px 0 #1e7e34; }
-        .opt-btn.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; box-shadow: 0 5px 0 #bd2130; }
+        .opt-btn:active { transform: translateY(6px); box-shadow: none; }
+        .opt-btn.correct { background: #d4edda; border-color: #28a745; color: #155724; box-shadow: 0 6px 0 #1e7e34; }
+        .opt-btn.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; box-shadow: 0 6px 0 #bd2130; }
 
         .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; width: 100%; max-width: 500px; }
         .num-btn { background: white; padding: 20px; font-size: 32px; border-radius: 15px; box-shadow: 0 6px 0 #ccc; color: #333; border: 1px solid #ddd; }
@@ -208,7 +195,7 @@
 
     <script>
         // ==========================================
-        // ⚙️ 邏輯控制中心 (LOGIC ONLY) - v3.7 防作弊+橫排版
+        // ⚙️ 邏輯控制中心
         // ==========================================
         let currentRole = null;
         let score = 0;
@@ -295,12 +282,9 @@
             btn.className = 'menu-item btn';
             if (color) btn.style.borderLeftColor = color; 
             
-            let htmlContent = '';
-            if (sub && sub !== "") {
-                htmlContent = `<div><span class="menu-title">${title}</span><span class="menu-sub">${sub}</span></div>`;
-            } else {
-                htmlContent = `<span class="menu-title" style="margin:0;">${title}</span>`;
-            }
+            let htmlContent = (sub && sub !== "") ? 
+                `<div><span class="menu-title">${title}</span><span class="menu-sub">${sub}</span></div>` :
+                `<span class="menu-title" style="margin:0;">${title}</span>`;
 
             btn.innerHTML = htmlContent;
             btn.onclick = action;
@@ -361,13 +345,12 @@
             currentQ = qData;
             const display = document.getElementById('q-display');
             
-            // --- 🚫 防作弊核心邏輯 ---
-            // 如果是哥哥的注音測驗 (h_zhuyin)，強制大標題移除注音字體
+            // 🚫 防作弊核心：題目字體切換
             if (type === 'h_zhuyin') {
-                display.classList.add('no-zhuyin');
+                display.className = 'q-text no-zhuyin'; // 考拼音時，大字用黑體
                 display.innerHTML = qData.q;
             } else {
-                display.classList.remove('no-zhuyin'); // 其他模式恢復可愛字體
+                display.className = 'q-text use-zhuyin'; // 其他時候用注音體
                 if (type === 'h_char') display.innerHTML = `<div>${qData.q}</div><div class="q-sub">${qData.sub}</div>`;
                 else if (type.includes('english')) display.innerHTML = currentRole==='hunter' ? "???" : qData.q;
                 else if (type === 'a_zhuyin') display.innerHTML = "?";
@@ -388,6 +371,15 @@
             options.forEach(opt => {
                 let btn = document.createElement('button');
                 btn.className = 'opt-btn btn';
+                
+                // 🛠️ 關鍵：如果是注音選項，加入 .vertical-text 讓它直排
+                if (type === 'h_zhuyin' || type === 'a_zhuyin') {
+                    // 用正則表達式簡單判斷是否包含注音符號
+                    if (/[\u3100-\u312F]/.test(opt)) {
+                        btn.classList.add('vertical-text');
+                    }
+                }
+                
                 btn.innerText = opt;
                 let correctAns = qData.a || qData.q;
                 btn.onclick = () => checkAnswer(btn, opt, correctAns, type);

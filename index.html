@@ -51,6 +51,13 @@
             font-family: "Microsoft JhengHei", -apple-system, sans-serif !important;
         }
 
+        /* 數學數字優化 */
+        .math-num {
+            font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+            font-weight: bold;
+            margin: 0 5px;
+        }
+
         /* 通用元件 */
         .hidden { display: none !important; }
         .btn { border: none; border-radius: 16px; cursor: pointer; transition: 0.2s; font-weight: bold; outline: none; display: flex; align-items: center; justify-content: center; }
@@ -80,7 +87,7 @@
         
         /* 題目大字 */
         .q-text { 
-            font-size: 100px; 
+            font-size: 70px; 
             color: #333; 
             margin: 20px 0; 
             min-height: 120px; 
@@ -88,42 +95,16 @@
             flex-direction: column; 
             align-items: center; 
             justify-content: center; 
-            line-height: 1.2; 
-            word-wrap: break-word;
+            line-height: 1.3; 
+            word-wrap: break-word; 
             white-space: normal; 
         }
         
         .q-sub { font-size: 24px; color: #666; margin-top: 5px; margin-bottom: 15px; white-space: nowrap; }
 
         /* 選項排版 (RWD 橫向) */
-        .options-grid { 
-            display: flex; 
-            width: 100%; 
-            gap: 15px; 
-            flex-direction: row; 
-            justify-content: center; 
-            flex-wrap: wrap; 
-        }
-
-        .opt-btn { 
-            background: white; 
-            border: 4px solid #f0f0f0; 
-            padding: 10px; 
-            font-size: 36px;       
-            border-radius: 20px; 
-            color: #555; 
-            min-height: 120px; 
-            box-shadow: 0 6px 0 #ddd; 
-            box-sizing: border-box;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex: 1 1 auto;        
-            min-width: 140px;          
-            max-width: 100%;
-            white-space: nowrap;   
-        }
-
+        .options-grid { display: flex; width: 100%; gap: 15px; flex-direction: row; justify-content: center; flex-wrap: wrap; }
+        .opt-btn { background: white; border: 4px solid #f0f0f0; padding: 10px; font-size: 36px; border-radius: 20px; color: #555; min-height: 120px; box-shadow: 0 6px 0 #ddd; box-sizing: border-box; display: flex; align-items: center; justify-content: center; flex: 1; min-width: 140px; max-width: 300px; white-space: nowrap; }
         .opt-btn:active { transform: translateY(6px); box-shadow: none; }
         .opt-btn.correct { background: #d4edda; border-color: #28a745; color: #155724; box-shadow: 0 6px 0 #1e7e34; }
         .opt-btn.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; box-shadow: 0 6px 0 #bd2130; }
@@ -159,7 +140,7 @@
             <div class="role-avatar" style="background:#fff3cd;">👶</div>
             <div class="role-info">
                 <h2>弟弟 Angus</h2>
-                <p>注音、數󠇡數、時鐘</p>
+                <p>注音、數數、時鐘</p>
             </div>
         </div>
     </div>
@@ -172,6 +153,7 @@
         let currentRole = null;
         let score = 0;
         let currentQ = null;
+        let lastMathQ = ""; // 記錄上一題數學
         let inputBuffer = ""; 
         let mathConfig = null;
 
@@ -183,7 +165,6 @@
             
             document.body.className = role === 'hunter' ? 'hunter-app' : 'angus-app';
             document.getElementById('nav-title').innerText = role === 'hunter' ? 'Hunter 專屬' : 'Angus 專屬';
-            
             if (role === 'hunter') { showHunterCategories(); } 
             else { showAngusCategories(); }
         }
@@ -225,7 +206,7 @@
             container.innerHTML = `<div class="menu-list" id="menu-list"></div>`;
             const list = document.getElementById('menu-list');
             addMenuItem(list, "🗣️ 注音", "", () => showAngusSubject('zhuyin'), '#ffd1dc');
-            addMenuItem(list, "🍎 數󠇡數", "", () => showAngusSubject('math'), '#fff5ba');
+            addMenuItem(list, "🍎 數數", "", () => showAngusSubject('math'), '#fff5ba');
             addMenuItem(list, "🐶 英文", "", () => showAngusSubject('english'), '#baffc9');
         }
 
@@ -332,11 +313,8 @@
         function nextQuizQuestion(type) {
             let qData, options;
             
-            // 🛠️ 邏輯修正：使用 do...while 迴圈確保不重複出題
-            // 只要 (是第一題) 或者 (新題目跟上一題不同)，就接受。否則重抽。
-            
             if (type === 'h_zhuyin') { 
-                do { qData = getRandom(DB.hunter.chinese_zhuyin); } 
+                do { qData = getRandom(DB.hunter.chinese_zhuyin); }
                 while (currentQ && qData.q === currentQ.q && DB.hunter.chinese_zhuyin.length > 1);
                 options = shuffle(generateConfusingOptions(qData.a));
             }
@@ -348,10 +326,8 @@
             }
             else if (type === 'a_zhuyin') {
                 let char;
-                // 弟弟注音也要防重複
                 do { char = getRandom(DB.angus.zhuyin); }
                 while (currentQ && char === currentQ.a && DB.angus.zhuyin.length > 1);
-                
                 qData = { q: "?", a: char, audio: char, speak: "請找出 "+char };
                 let wrongs = DB.angus.zhuyin.filter(x => x !== char);
                 options = shuffle([char, ...shuffle(wrongs).slice(0,3)]);
@@ -368,6 +344,7 @@
             const subDisplay = document.getElementById('q-sub-display');
             subDisplay.innerHTML = "";
 
+            // 字體顯示邏輯
             if (type === 'h_zhuyin') {
                 display.className = 'q-text no-zhuyin'; 
                 display.innerHTML = qData.q;
@@ -380,11 +357,11 @@
                 }
             }
 
+            // 字體縮放
             let textLen = display.innerText.length;
             if (textLen <= 1) display.style.fontSize = "100px";
             else if (textLen === 2) display.style.fontSize = "80px";
-            else if (textLen === 3) display.style.fontSize = "60px";
-            else display.style.fontSize = "45px";
+            else if (textLen >= 3) display.style.fontSize = "70px"; 
 
             const hintDiv = document.getElementById('hint-btn');
             if (type === 'h_english' && qData.hint) {
@@ -466,48 +443,80 @@
             let config = mathConfig;
             let qText = "", qSub = "", ans = "";
             let currentType = config.type;
-            if (config.type === 'mix') {
-                const types = ['add', 'sub', 'decomp', 'clock'];
-                currentType = types[Math.floor(Math.random() * types.length)];
-            }
+            
+            let maxTries = 10;
+            let uniqueFound = false;
+            let finalQStr = "";
 
-            if (currentType === 'add') {
-                let a = Math.floor(Math.random() * (config.range + 1));
-                let b = Math.floor(Math.random() * (config.range + 1 - a));
-                qText = `${a} + ${b} = ?`; ans = (a+b).toString();
-            } else if (currentType === 'sub') {
-                let a = Math.floor(Math.random() * (config.range + 1));
-                let b = Math.floor(Math.random() * (a + 1));
-                qText = `${a} - ${b} = ?`; ans = (a-b).toString();
-            } else if (currentType === 'decomp') {
-                let total = Math.floor(Math.random() * (config.range - 1)) + 2; 
-                let p1 = Math.floor(Math.random() * total);
-                qText = `${total} 可以分成`; qSub = `${p1} 和 ?`; ans = (total - p1).toString();
-            } 
-            else if (currentType === 'count') {
-                let count = Math.floor(Math.random() * config.range) + 1;
-                let icons = ['🍎', '🍌', '🍇', '🍊', '🍉', '🍒', '🐶', '🐱', '🐰', '🚗', '✈️', '⚽', '⭐️', '🍪', '🎈'];
-                let icon = icons[Math.floor(Math.random() * icons.length)];
-                
-                qText = `<div style="display:flex; flex-wrap:wrap; justify-content:center; gap:5px; line-height:1.2;">${icon.repeat(count)}</div>`;
-                qSub = "有幾個?"; ans = count.toString();
-            } 
-            else if (currentType === 'clock') {
+            do {
+                if (config.type === 'mix') {
+                    const types = ['add', 'sub', 'decomp', 'clock'];
+                    currentType = types[Math.floor(Math.random() * types.length)];
+                }
+
+                if (currentType === 'add') {
+                    let a = Math.floor(Math.random() * (config.range + 1));
+                    let b = Math.floor(Math.random() * (config.range + 1 - a));
+                    // 🛠️ 修正：移除問號
+                    qText = `<span class='math-num'>${a}</span> + <span class='math-num'>${b}</span> =`; 
+                    qSub = "";
+                    ans = (a+b).toString();
+                } else if (currentType === 'sub') {
+                    let a = Math.floor(Math.random() * (config.range + 1));
+                    let b = Math.floor(Math.random() * (a + 1));
+                    // 🛠️ 修正：移除問號
+                    qText = `<span class='math-num'>${a}</span> - <span class='math-num'>${b}</span> =`; 
+                    qSub = "";
+                    ans = (a-b).toString();
+                } else if (currentType === 'decomp') {
+                    let total = Math.floor(Math.random() * (config.range - 1)) + 2; 
+                    let p1 = Math.floor(Math.random() * total);
+                    // 🛠️ 修正：合併成一句話
+                    qText = `<span class='math-num'>${total}</span> 可以分成 <span class='math-num'>${p1}</span> 和 <span class='math-num'>?</span>`; 
+                    qSub = ""; 
+                    ans = (total - p1).toString();
+                } else if (currentType === 'count') {
+                    let count = Math.floor(Math.random() * config.range) + 1;
+                    let icons = ['🍎', '🍌', '🍇', '🍊', '🍉', '🍒', '🐶', '🐱', '🐰', '🚗', '✈️', '⚽', '⭐️', '🍪', '🎈'];
+                    let icon = icons[Math.floor(Math.random() * icons.length)];
+                    qText = `<div style="display:flex; flex-wrap:wrap; justify-content:center; gap:5px; line-height:1.2;">${icon.repeat(count)}</div>`;
+                    qSub = ""; // 數數也不需要副標題，語音會念「有幾個」
+                    ans = count.toString();
+                    currentQ = { ans: ans, type: currentType, speak: "有幾個？" }; // 🛠️ 強制設定語音
+                } else if (currentType === 'clock') {
+                    let h = Math.floor(Math.random() * 12) + 1;
+                    let m = 0;
+                    let isHalf = (config.range === 'half' || (config.type === 'mix' && Math.random() > 0.5)) && Math.random() > 0.5;
+                    if (isHalf) m = 30;
+                    drawClock(h, m);
+                    qSub = "現在是幾點？";
+                    ans = m === 30 ? `${h}:30` : `${h}:00`;
+                    finalQStr = `${h}:${m}`;
+                    uniqueFound = true; 
+                }
+
+                if (currentType !== 'clock') finalQStr = qText;
+                if (finalQStr !== lastMathQ) uniqueFound = true;
+
+            } while (!uniqueFound && maxTries-- > 0);
+
+            lastMathQ = finalQStr;
+
+            if (currentType === 'clock') {
                 document.getElementById('clock-canvas').classList.remove('hidden');
                 document.getElementById('math-q').classList.add('hidden');
-                let h = Math.floor(Math.random() * 12) + 1;
-                let m = 0;
-                let isHalf = (config.range === 'half' || (config.type === 'mix' && Math.random() > 0.5)) && Math.random() > 0.5;
-                if (isHalf) m = 30;
-                drawClock(h, m);
-                qSub = "現在是幾點？";
-                ans = m === 30 ? `${h}:30` : `${h}:00`;
-                if (m === 30) document.getElementById('half-btn').classList.remove('hidden');
+                if (ans.endsWith(':30')) document.getElementById('half-btn').classList.remove('hidden');
+            } else {
+                // 如果不是數數，currentQ 要在這裡更新；如果是數數，上面已經更新過包含 speak 的版本了
+                if (currentType !== 'count') {
+                     currentQ = { ans: ans, type: currentType };
+                }
+                document.getElementById('math-q').innerHTML = qText;
+                document.getElementById('math-sub').innerHTML = qSub; 
             }
-
-            currentQ = { ans: ans, type: currentType };
-            document.getElementById('math-q').innerHTML = qText;
-            document.getElementById('math-sub').innerText = qSub;
+            
+            // 自動發音 (如果是數數)
+            if(currentType === 'count') setTimeout(() => speakCurrent(), 300);
         }
 
         function inputNum(val) {
@@ -548,8 +557,13 @@
 
         function speakCurrent() {
             if (!currentQ) return;
+            
+            // 🛠️ 修正語音邏輯：優先讀取 speak 屬性，沒有才讀 q 或 audio
             let text = currentQ.speak || currentQ.audio || currentQ.q;
-            if (!text || text.includes('<div') || text.includes('?')) return; 
+            
+            // 移除過濾條件，確保有 speak 就一定念
+            if (!text) return; 
+
             let u = new SpeechSynthesisUtterance(text);
             u.lang = /[a-zA-Z]/.test(text) ? 'en-US' : 'zh-TW';
             u.rate = 0.8;

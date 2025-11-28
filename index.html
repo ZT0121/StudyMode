@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hunter & Angus 的 Classroom</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#4a90e2">
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
+    <link rel="manifest" href="manifest.json">
+
+    <style>
+        /* =========================================
+           CSS 樣式表
+           ========================================= */
+        @font-face {
+            font-family: 'ZhuyinFont';
+            src: url('./fonts/zhuyin.ttf') format('truetype');
+            font-display: swap;
+        }
+
+        :root {
+            --primary: #4a90e2;
+            --hunter-bg: #e3f2fd;
+            --angus-bg: #fff3cd;
+        }
+
+        body {
+            font-family: "Microsoft JhengHei", -apple-system, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            user-select: none;
+        }
+
+        .use-zhuyin { font-family: 'ZhuyinFont', "Microsoft JhengHei", sans-serif; }
+        .hidden { display: none !important; }
+        .btn { border: none; border-radius: 12px; cursor: pointer; transition: 0.2s; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+        .btn:active { transform: scale(0.96); }
+        .icon-btn { background: #eee; width: 50px; height: 50px; border-radius: 50%; font-size: 24px; border: none; cursor: pointer; }
+        
+        .navbar { width: 100%; padding: 15px 20px; background: white; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; box-sizing: border-box; }
+        .score-board { font-size: 20px; color: #555; font-weight: bold; }
+
+        #home-view { display: flex; flex-direction: column; gap: 20px; margin-top: 10vh; width: 90%; max-width: 400px; }
+        .role-card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 20px; cursor: pointer; transition: 0.3s; }
+        .role-card:active { transform: scale(0.98); }
+        .role-avatar { font-size: 40px; background: #eee; width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .role-info h2 { margin: 0; font-size: 24px; color: #333; }
+        .role-info p { margin: 5px 0 0; color: #888; font-size: 14px; }
+        
+        .hunter-app { background: var(--hunter-bg); }
+        .angus-app { background: var(--angus-bg); }
+        
+        .menu-list { display: grid; grid-template-columns: 1fr; gap: 15px; width: 90%; max-width: 500px; padding: 20px 0; }
+        .menu-item { background: white; padding: 20px; border-radius: 15px; text-align: left; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-left: 8px solid var(--primary); display: block; width: 100%; box-sizing: border-box; }
+        .menu-title { font-size: 20px; font-weight: bold; color: #333; margin-bottom: 5px; }
+        .menu-sub { font-size: 14px; color: #888; }
+
+        .quiz-container { width: 90%; max-width: 500px; display: flex; flex-direction: column; align-items: center; padding-top: 20px; }
+        .card { background: white; width: 100%; padding: 30px 20px; border-radius: 25px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); text-align: center; margin-bottom: 25px; position: relative; box-sizing: border-box; }
+        .q-text { font-size: 60px; font-weight: bold; color: #333; margin: 15px 0; min-height: 80px; display: flex; align-items: center; justify-content: center; line-height: 1.2; }
+        .q-sub { font-size: 18px; color: #666; margin-top: -10px; margin-bottom: 10px; }
+
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; }
+        .opt-btn { background: white; border: 3px solid #eee; padding: 15px; font-size: 32px; border-radius: 15px; color: #555; min-height: 80px; }
+        .opt-btn.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+        .opt-btn.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+
+        .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; }
+        .num-btn { background: white; padding: 15px; font-size: 28px; border-radius: 12px; box-shadow: 0 4px 0 #ccc; color: #333; border: 1px solid #ddd; }
+        .num-btn:active { box-shadow: none; transform: translateY(4px); }
+        .action-btn { background: var(--primary); color: white; box-shadow: 0 4px 0 #2a6bb3; border: none; }
+        .half-btn { grid-column: span 3; background: #e1f5fe; font-size: 22px; }
+
+        .hint-toggle { margin-top: 10px; background: #fff3cd; color: #856404; padding: 8px 20px; font-size: 16px; border-radius: 20px; }
+        canvas { background: white; border-radius: 50%; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 20px; max-width: 100%; }
+    </style>
+</head>
+<body>
+
+    <nav id="navbar" class="navbar hidden">
+        <div class="btn" onclick="goHome()" style="font-size:24px;">🏠</div>
+        <div id="nav-title" style="font-weight:bold; font-size: 18px; color:#4a90e2;" class="use-zhuyin">Classroom</div>
+        <div class="score-board">⭐ <span id="score">0</span></div>
+    </nav>
+
+    <div id="home-view">
+        <div class="role-card" onclick="selectRole('hunter')" style="border-left: 6px solid #4facfe;">
+            <div class="role-avatar" style="background:#e3f2fd;">👦</div>
+            <div class="role-info">
+                <h2 class="use-zhuyin">Hunter</h2>
+                <p>國語、數學、英文</p>
+            </div>
+        </div>
+        <div class="role-card" onclick="selectRole('angus')" style="border-left: 6px solid #ff9a9e;">
+            <div class="role-avatar" style="background:#fff3cd;">👶</div>
+            <div class="role-info">
+                <h2 class="use-zhuyin">Angus</h2>
+                <p>注音、數數、時鐘</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-container" class="hidden"></div>
+
+    <script src="questions.js"></script>
+
+    <script>
+        // ==========================================
+        // ⚙️ 邏輯控制中心 (LOGIC ONLY)
+        // ==========================================
+        let currentRole = null;
+        let score = 0;
+        let currentQ = null;
+        let inputBuffer = ""; 
+        let mathConfig = null;
+
+        // --- 角色與導航 ---
+        function selectRole(role) {
+            currentRole = role;
+            document.getElementById('home-view').classList.add('hidden');
+            document.getElementById('navbar').classList.remove('hidden');
+            document.getElementById('app-container').classList.remove('hidden');
+            document.body.className = role === 'hunter' ? 'hunter-app' : 'angus-app';
+            document.getElementById('nav-title').innerText = role === 'hunter' ? 'Hunter 的教室' : 'Angus 的遊戲';
+            showMenu();
+        }
+
+        function goHome() {
+            document.getElementById('home-view').classList.remove('hidden');
+            document.getElementById('navbar').classList.add('hidden');
+            document.getElementById('app-container').classList.add('hidden');
+            document.body.className = '';
+            currentRole = null;
+        }
+
+        function showMenu() {
+            const container = document.getElementById('app-container');
+            container.innerHTML = `<div class="menu-list" id="menu-list"></div>`;
+            const list = document.getElementById('menu-list');
+            
+            if (currentRole === 'hunter') {
+                addMenuItem(list, "國語：首冊 (拼音)", "聽音選注音", () => startQuiz('h_zhuyin'));
+                addMenuItem(list, "國語：第一冊 (認字)", "部首與筆畫", () => startQuiz('h_char'));
+                addMenuItem(list, "英文：雙語繪本", "聽音辨字 (含提示)", () => startQuiz('h_english'));
+                DB.hunter.mathUnits.forEach(u => {
+                    addMenuItem(list, "數學：" + u.name, u.desc, () => startMath(u));
+                });
+            } else {
+                addMenuItem(list, "注音符號找找看", "聽音找字 (全範圍)", () => startQuiz('a_zhuyin'));
+                addMenuItem(list, "英文：簡單單字", "顏色、動物", () => startQuiz('a_english'));
+                DB.angus.mathUnits.forEach(u => {
+                    addMenuItem(list, "數學：" + u.name, u.desc, () => startMath(u));
+                });
+            }
+        }
+
+        function addMenuItem(parent, title, sub, action) {
+            const btn = document.createElement('button');
+            btn.className = 'menu-item btn';
+            btn.innerHTML = `<div><div class="menu-title use-zhuyin">${title}</div><div class="menu-sub use-zhuyin">${sub}</div></div>`;
+            btn.onclick = action;
+            parent.appendChild(btn);
+        }
+
+        // --- 測驗邏輯 ---
+        function startQuiz(type) {
+            score = 0;
+            document.getElementById('score').innerText = 0;
+            const container = document.getElementById('app-container');
+            container.innerHTML = `
+                <div class="quiz-container">
+                    <div class="card">
+                        <button class="icon-btn" onclick="speakCurrent()">🔊</button>
+                        <div id="q-display" class="q-text ${type === 'h_zhuyin' ? '' : 'use-zhuyin'}"></div>
+                        <div id="hint-btn" class="hidden"></div>
+                    </div>
+                    <div id="opt-container" class="options-grid"></div>
+                    <button class="btn" onclick="showMenu()" style="margin-top:20px; color:#888;">結束練習</button>
+                </div>`;
+            nextQuizQuestion(type);
+        }
+
+        function nextQuizQuestion(type) {
+            let qData, options;
+            
+            if (type === 'h_zhuyin') {
+                qData = getRandom(DB.hunter.chinese_zhuyin);
+                options = qData.opts;
+            } else if (type === 'h_char') {
+                qData = getRandom(DB.hunter.chinese_char);
+                options = qData.opts;
+            } else if (type === 'h_english') {
+                qData = getRandom(DB.hunter.english);
+                let wrongs = DB.hunter.english.filter(x => x.q !== qData.q).map(x => x.q);
+                options = shuffle([qData.q, ...shuffle(wrongs).slice(0,3)]);
+            } else if (type === 'a_zhuyin') {
+                let char = getRandom(DB.angus.zhuyin);
+                qData = { q: "?", a: char, audio: char, speak: "請找出 "+char };
+                let wrongs = DB.angus.zhuyin.filter(x => x !== char);
+                options = shuffle([char, ...shuffle(wrongs).slice(0,3)]);
+            } else if (type === 'a_english') {
+                qData = getRandom(DB.angus.english);
+                let wrongs = DB.angus.english.filter(x => x.q !== qData.q).map(x => x.q);
+                options = shuffle([qData.q, ...shuffle(wrongs).slice(0,3)]);
+            }
+
+            currentQ = qData;
+            const display = document.getElementById('q-display');
+            
+            if (type === 'h_zhuyin') display.innerHTML = qData.q;
+            else if (type === 'h_char') display.innerHTML = `<div>${qData.q}</div><div class="q-sub use-zhuyin">${qData.sub}</div>`;
+            else if (type.includes('english')) display.innerHTML = currentRole==='hunter' ? "???" : qData.q;
+            else if (type === 'a_zhuyin') display.innerHTML = "?";
+
+            const hintDiv = document.getElementById('hint-btn');
+            if (type.includes('english') && qData.hint) {
+                hintDiv.className = 'btn hint-toggle use-zhuyin';
+                hintDiv.innerText = "💡 看提示";
+                hintDiv.onclick = () => { display.innerText = qData.q; hintDiv.innerText = qData.hint; };
+                hintDiv.classList.remove('hidden');
+            } else { hintDiv.classList.add('hidden'); }
+
+            setTimeout(() => speakCurrent(), 300);
+
+            const optContainer = document.getElementById('opt-container');
+            optContainer.innerHTML = '';
+            options.forEach(opt => {
+                let btn = document.createElement('button');
+                btn.className = 'opt-btn btn use-zhuyin';
+                btn.innerText = opt;
+                let correctAns = qData.a || qData.q;
+                btn.onclick = () => checkAnswer(btn, opt, correctAns, type);
+                optContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(btn, selected, correct, type) {
+            if (selected === correct) {
+                btn.classList.add('correct');
+                score++;
+                document.getElementById('score').innerText = score;
+                setTimeout(() => nextQuizQuestion(type), 800);
+            } else {
+                btn.classList.add('wrong');
+            }
+        }
+
+        // --- 數學邏輯 ---
+        function startMath(config) {
+            score = 0;
+            document.getElementById('score').innerText = 0;
+            mathConfig = config;
+            const container = document.getElementById('app-container');
+            container.innerHTML = `
+                <div class="quiz-container">
+                    <canvas id="clock-canvas" width="250" height="250" class="hidden"></canvas>
+                    <div class="card" style="padding: 15px;">
+                        <div id="math-q" class="q-text"></div>
+                        <div id="math-sub" class="q-sub use-zhuyin"></div>
+                        <div id="math-input" style="font-size:40px; color:#4a90e2; border-bottom:2px solid #ddd; height:50px; width:100%; margin-top:10px;"></div>
+                    </div>
+                    <div class="numpad">
+                        <button class="num-btn" onclick="inputNum(1)">1</button>
+                        <button class="num-btn" onclick="inputNum(2)">2</button>
+                        <button class="num-btn" onclick="inputNum(3)">3</button>
+                        <button class="num-btn" onclick="inputNum(4)">4</button>
+                        <button class="num-btn" onclick="inputNum(5)">5</button>
+                        <button class="num-btn" onclick="inputNum(6)">6</button>
+                        <button class="num-btn" onclick="inputNum(7)">7</button>
+                        <button class="num-btn" onclick="inputNum(8)">8</button>
+                        <button class="num-btn" onclick="inputNum(9)">9</button>
+                        <button class="num-btn" onclick="inputNum('C')" style="color:orange;">C</button>
+                        <button class="num-btn" onclick="inputNum(0)">0</button>
+                        <button class="num-btn action-btn" onclick="checkMath()">OK</button>
+                        <button id="half-btn" class="num-btn half-btn hidden" onclick="inputNum(':30')">🕒 半 (:30)</button>
+                    </div>
+                    <button class="btn" onclick="showMenu()" style="margin-top:20px; color:#999;">結束練習</button>
+                </div>`;
+            nextMathQuestion();
+        }
+
+        function nextMathQuestion() {
+            inputBuffer = "";
+            document.getElementById('math-input').innerText = "";
+            document.getElementById('half-btn').classList.add('hidden');
+            document.getElementById('clock-canvas').classList.add('hidden');
+            document.getElementById('math-q').classList.remove('hidden');
+
+            let config = mathConfig;
+            let qText = "", qSub = "", ans = "";
+
+            // 隨機選題型
+            let currentType = config.type;
+            if (config.type === 'mix') {
+                const types = ['add', 'sub', 'decomp', 'clock'];
+                currentType = types[Math.floor(Math.random() * types.length)];
+            }
+
+            if (currentType === 'add') {
+                let a = Math.floor(Math.random() * (config.range + 1));
+                let b = Math.floor(Math.random() * (config.range + 1 - a));
+                qText = `${a} + ${b} = ?`; ans = (a+b).toString();
+            } 
+            else if (currentType === 'sub') {
+                let a = Math.floor(Math.random() * (config.range + 1));
+                let b = Math.floor(Math.random() * (a + 1));
+                qText = `${a} - ${b} = ?`; ans = (a-b).toString();
+            }
+            else if (currentType === 'decomp') {
+                let total = Math.floor(Math.random() * (config.range - 1)) + 2; 
+                let p1 = Math.floor(Math.random() * total);
+                qText = `${total} 可以分成`; qSub = `${p1} 和 ?`; ans = (total - p1).toString();
+            }
+            else if (currentType === 'count') {
+                let count = Math.floor(Math.random() * 10) + 1;
+                qText = "🍎".repeat(count); qSub = "有幾個?"; ans = count.toString();
+            }
+            else if (currentType === 'clock') {
+                document.getElementById('clock-canvas').classList.remove('hidden');
+                document.getElementById('math-q').classList.add('hidden');
+                let h = Math.floor(Math.random() * 12) + 1;
+                let m = 0;
+                // 如果是 Mix 模式也可能有半點
+                let isHalf = (config.range === 'half' || config.type === 'mix') && Math.random() > 0.5;
+                if (isHalf) m = 30;
+                
+                drawClock(h, m);
+                qSub = "電子鐘怎麼寫？";
+                ans = m === 30 ? `${h}:30` : `${h}:00`;
+                if (m === 30) document.getElementById('half-btn').classList.remove('hidden');
+            }
+
+            currentQ = { ans: ans, type: currentType };
+            document.getElementById('math-q').innerText = qText;
+            document.getElementById('math-sub').innerText = qSub;
+        }
+
+        function inputNum(val) {
+            if (val === 'C') { inputBuffer = ""; }
+            else {
+                if (val === ':30' && (inputBuffer.includes(':') || inputBuffer === '')) return;
+                if (inputBuffer.length > 5) return;
+                inputBuffer += val;
+            }
+            document.getElementById('math-input').innerText = inputBuffer;
+        }
+
+        function checkMath() {
+            let isCorrect = false;
+            let correctAns = currentQ.ans;
+            if ((currentQ.type === 'clock' || mathConfig.type === 'mix') && correctAns.endsWith(":00")) {
+                if (inputBuffer === correctAns || inputBuffer === correctAns.split(":")[0]) isCorrect = true;
+            } else {
+                if (inputBuffer === correctAns) isCorrect = true;
+            }
+
+            const inputDiv = document.getElementById('math-input');
+            if (isCorrect) {
+                inputDiv.style.color = "#28a745";
+                score++;
+                document.getElementById('score').innerText = score;
+                setTimeout(() => nextMathQuestion(), 600);
+            } else {
+                inputDiv.style.color = "#dc3545";
+                setTimeout(() => { inputBuffer = ""; inputDiv.innerText = ""; inputDiv.style.color = "#4a90e2"; }, 500);
+            }
+        }
+
+        // --- 工具函式 ---
+        function speakCurrent() {
+            if (!currentQ) return;
+            let text = currentQ.speak || currentQ.audio || currentQ.q;
+            if (!text || text.includes('🍎') || text.includes('?')) return; 
+            let u = new SpeechSynthesisUtterance(text);
+            u.lang = /[a-zA-Z]/.test(text) ? 'en-US' : 'zh-TW';
+            u.rate = 0.8;
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(u);
+        }
+        function getRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+        function shuffle(arr) { return arr.sort(() => Math.random() - 0.5); }
+        function drawClock(hour, minute) {
+            const canvas = document.getElementById('clock-canvas');
+            const ctx = canvas.getContext('2d');
+            const r = canvas.width / 2;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.translate(r, r);
+            ctx.beginPath(); ctx.arc(0, 0, r - 5, 0, 2 * Math.PI); ctx.fillStyle = "white"; ctx.fill(); ctx.strokeStyle = "#333"; ctx.lineWidth = 4; ctx.stroke();
+            for(let i=0; i<12; i++){ ctx.beginPath(); ctx.rotate(Math.PI / 6); ctx.moveTo(0, - (r - 15)); ctx.lineTo(0, - (r - 5)); ctx.stroke(); }
+            let hAngle = (hour % 12) * Math.PI / 6 + (minute * Math.PI / (6 * 60));
+            let mAngle = minute * Math.PI / 30;
+            ctx.strokeStyle = "#333"; ctx.lineWidth = 8; ctx.lineCap = "round"; ctx.beginPath(); ctx.rotate(hAngle); ctx.moveTo(0, 0); ctx.lineTo(0, -r * 0.5); ctx.stroke(); ctx.rotate(-hAngle);
+            ctx.strokeStyle = "#e74c3c"; ctx.lineWidth = 5; ctx.beginPath(); ctx.rotate(mAngle); ctx.moveTo(0, 0); ctx.lineTo(0, -r * 0.75); ctx.stroke(); ctx.rotate(-mAngle);
+            ctx.beginPath(); ctx.arc(0, 0, 6, 0, 2*Math.PI); ctx.fillStyle = "#333"; ctx.fill(); ctx.translate(-r, -r);
+        }
+    </script>
+</body>
+</html>

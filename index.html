@@ -13,7 +13,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
     <link rel="manifest" href="manifest.json">
 
-<style>
+    <style>
         /* =========================================
            1. 字體設定 (FONT SETUP)
            ========================================= */
@@ -40,10 +40,10 @@
             flex-direction: column;
             align-items: center;
             user-select: none;
-            -webkit-tap-highlight-color: transparent; /* 移除手機點擊藍框 */
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* === ❗ 強制套用注音字體的區域 ❗ === */
+        /* === ❗ 強制套用注音字體 ❗ === */
         .role-info h2, .role-info p, .menu-title, .menu-sub, .q-text, .q-sub, .opt-btn, .hint-toggle, .use-zhuyin {
             font-family: 'ZhuyinFont', "Microsoft JhengHei", sans-serif !important;
             font-weight: normal;
@@ -51,15 +51,26 @@
 
         /* 通用元件 */
         .hidden { display: none !important; }
-        .btn { border: none; border-radius: 16px; /* 圓角大一點 */ cursor: pointer; transition: 0.2s; font-weight: bold; display: flex; align-items: center; justify-content: center; outline: none; }
+        .btn { 
+            border: none; 
+            border-radius: 16px; 
+            cursor: pointer; 
+            transition: 0.2s; 
+            font-weight: bold; 
+            outline: none; 
+            /* 這裡很重要：讓按鈕內容置中，但外框要能撐開 */
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+        }
         .btn:active { transform: scale(0.96); }
         .icon-btn { background: #eee; width: 60px; height: 60px; border-radius: 50%; font-size: 30px; border: none; cursor: pointer; }
         
-        /* 導覽列 - 加大 */
+        /* 導覽列 */
         .navbar { width: 100%; padding: 15px 25px; background: white; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; box-sizing: border-box; }
         .score-board { font-size: 24px; color: #555; font-weight: bold; font-family: -apple-system, sans-serif; }
 
-        /* 首頁 - 卡片加大 */
+        /* 首頁 */
         #home-view { display: flex; flex-direction: column; gap: 25px; margin-top: 8vh; width: 90%; max-width: 450px; }
         .role-card { background: white; padding: 30px; border-radius: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 25px; cursor: pointer; transition: 0.3s; }
         .role-card:active { transform: scale(0.98); }
@@ -71,40 +82,69 @@
         .hunter-app { background: var(--hunter-bg); }
         .angus-app { background: var(--angus-bg); }
         
-        /* 選單 - 字體加大 */
-        .menu-list { display: grid; grid-template-columns: 1fr; gap: 18px; width: 90%; max-width: 550px; padding: 20px 0; }
-        .menu-item { background: white; padding: 25px; border-radius: 20px; text-align: left; box-shadow: 0 5px 15px rgba(0,0,0,0.05); border-left: 10px solid var(--primary); display: block; width: 100%; box-sizing: border-box; }
-        .menu-title { font-size: 28px; color: #333; margin-bottom: 8px; display: block; line-height: 1.4; }
-        .menu-sub { font-size: 18px; color: #888; display: block; }
+        /* 選單列表 - 確保寬度足夠 */
+        .menu-list { 
+            display: grid; 
+            grid-template-columns: 1fr; /* 強制單欄 */
+            gap: 20px; 
+            width: 90%; 
+            max-width: 550px; 
+            padding: 20px 0; 
+        }
 
-        /* 答題卡片 */
+        /* 選單按鈕 - 修復變形問題 */
+        .menu-item { 
+            background: white; 
+            padding: 25px; 
+            border-radius: 20px; 
+            text-align: center; /* 改為置中 */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
+            border-left: 10px solid var(--primary); 
+            display: flex !important; /* 強制 Flex 佈局 */
+            width: 100% !important;   /* 強制寬度填滿 */
+            box-sizing: border-box; 
+            min-height: 100px;
+            justify-content: center; /* 內容水平置中 */
+            align-items: center; /* 內容垂直置中 */
+        }
+
+        .menu-title { 
+            font-size: 36px; /* 再加大一點 */
+            color: #333; 
+            margin: 0; 
+            display: inline-block; 
+            line-height: 1.4; 
+            white-space: nowrap; /* ❗關鍵：這行讓文字「死都不準換行」 */
+        }
+        
+        .menu-sub { 
+            font-size: 18px; 
+            color: #888; 
+            display: block; 
+            margin-top: 5px;
+        }
+
+        /* 答題區 */
         .quiz-container { width: 95%; max-width: 600px; display: flex; flex-direction: column; align-items: center; padding-top: 20px; }
         .card { background: white; width: 100%; padding: 40px 20px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; margin-bottom: 25px; position: relative; box-sizing: border-box; }
         
-        /* 題目文字 - 超級大 */
         .q-text { font-size: 80px; color: #333; margin: 20px 0; min-height: 100px; display: flex; align-items: center; justify-content: center; line-height: 1.3; }
         .q-sub { font-size: 24px; color: #666; margin-top: -10px; margin-bottom: 15px; }
 
-        /* 選項區 - 按鈕加大 */
         .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; }
         .opt-btn { background: white; border: 4px solid #f0f0f0; padding: 15px; font-size: 42px; border-radius: 20px; color: #555; min-height: 100px; box-shadow: 0 5px 0 #ddd; }
         .opt-btn:active { transform: translateY(5px); box-shadow: none; }
         .opt-btn.correct { background: #d4edda; border-color: #28a745; color: #155724; box-shadow: 0 5px 0 #1e7e34; }
         .opt-btn.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; box-shadow: 0 5px 0 #bd2130; }
 
-        /* 數字鍵盤 - 加大 */
         .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; width: 100%; }
         .num-btn { background: white; padding: 20px; font-size: 32px; border-radius: 15px; box-shadow: 0 6px 0 #ccc; color: #333; border: 1px solid #ddd; }
         .num-btn:active { box-shadow: none; transform: translateY(6px); }
         .action-btn { background: var(--primary); color: white; box-shadow: 0 6px 0 #2a6bb3; border: none; }
         .half-btn { grid-column: span 3; background: #e1f5fe; font-size: 26px; }
 
-        /* 數學輸入框 */
         #math-input { font-size: 60px !important; height: 70px !important; margin-bottom: 20px; }
-
         .hint-toggle { margin-top: 15px; background: #fff3cd; color: #856404; padding: 10px 25px; font-size: 20px; border-radius: 25px; }
-        
-        /* 時鐘畫布 */
         canvas { background: white; border-radius: 50%; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 20px; max-width: 100%; }
     </style>
 </head>
@@ -128,7 +168,7 @@
             <div class="role-avatar" style="background:#fff3cd;">👶</div>
             <div class="role-info">
                 <h2>弟弟 Angus</h2>
-                <p>注音、數󠇡數、時鐘</p>
+                <p>注音、數數、時鐘</p>
             </div>
         </div>
     </div>
@@ -137,13 +177,9 @@
 
     <script src="questions.js"></script>
 
-<script src="questions.js"></script>
-
-<script src="questions.js"></script>
-
     <script>
         // ==========================================
-        // ⚙️ 邏輯控制中心 (LOGIC ONLY) - v3.1 清爽版
+        // ⚙️ 邏輯控制中心 (LOGIC ONLY) - v3.2 完美修復版
         // ==========================================
         let currentRole = null;
         let score = 0;
@@ -151,7 +187,6 @@
         let inputBuffer = ""; 
         let mathConfig = null;
 
-        // --- 角色與導航 ---
         function selectRole(role) {
             currentRole = role;
             document.getElementById('home-view').classList.add('hidden');
@@ -161,11 +196,8 @@
             document.body.className = role === 'hunter' ? 'hunter-app' : 'angus-app';
             document.getElementById('nav-title').innerText = role === 'hunter' ? 'Hunter 的教室' : 'Angus 的遊戲';
             
-            if (role === 'hunter') {
-                showHunterCategories();
-            } else {
-                showAngusCategories();
-            }
+            if (role === 'hunter') { showHunterCategories(); } 
+            else { showAngusCategories(); }
         }
 
         function goHome() {
@@ -184,7 +216,7 @@
             container.innerHTML = `<div class="menu-list" id="menu-list"></div>`;
             const list = document.getElementById('menu-list');
 
-            // 這裡把描述改成空字串 ""，按鈕會自動變乾淨
+            // 描述給空字串，按鈕會自動置中
             addMenuItem(list, "📚 國語", "", () => showHunterSubject('chinese'), '#ff9a9e');
             addMenuItem(list, "🔢 數學", "", () => showHunterSubject('math'), '#4facfe');
             addMenuItem(list, "🔤 英文", "", () => showHunterSubject('english'), '#a8e6cf');
@@ -197,7 +229,6 @@
 
             addBackBtn(list, "⬅️ 回科目選單", () => showHunterCategories());
 
-            // 這裡的單元列表保留描述，讓 Hunter 知道要練什麼
             if (subject === 'chinese') {
                 addMenuItem(list, "首冊 (拼音)", "聽音選注音", () => startQuiz('h_zhuyin'));
                 addMenuItem(list, "第一冊 (認字)", "部首與筆畫", () => startQuiz('h_char'));
@@ -216,7 +247,6 @@
             container.innerHTML = `<div class="menu-list" id="menu-list"></div>`;
             const list = document.getElementById('menu-list');
 
-            // 這裡也把描述拿掉
             addMenuItem(list, "🗣️ 注音", "", () => showAngusSubject('zhuyin'), '#ffd1dc');
             addMenuItem(list, "🍎 數數", "", () => showAngusSubject('math'), '#fff5ba');
             addMenuItem(list, "🐶 英文", "", () => showAngusSubject('english'), '#baffc9');
@@ -238,22 +268,21 @@
             }
         }
 
-        // --- 輔助函式：產生按鈕 (智慧判斷版) ---
+        // --- 輔助函式：產生按鈕 ---
         function addMenuItem(parent, title, sub, action, color) {
             const btn = document.createElement('button');
             btn.className = 'menu-item btn';
             if (color) btn.style.borderLeftColor = color; 
             
-            // 智慧判斷：如果沒有 sub (描述)，標題就置中，不要留空白
             let htmlContent = '';
+            // 如果有描述，就上下排列；沒有描述，就只顯示標題
             if (sub && sub !== "") {
-                htmlContent = `<span class="menu-title">${title}</span><span class="menu-sub">${sub}</span>`;
+                htmlContent = `<div><span class="menu-title">${title}</span><span class="menu-sub">${sub}</span></div>`;
             } else {
-                // 取消下邊距，讓文字垂直置中
-                htmlContent = `<span class="menu-title" style="margin-bottom:0;">${title}</span>`;
+                htmlContent = `<span class="menu-title" style="margin:0;">${title}</span>`;
             }
 
-            btn.innerHTML = `<div>${htmlContent}</div>`;
+            btn.innerHTML = htmlContent;
             btn.onclick = action;
             parent.appendChild(btn);
         }
@@ -265,7 +294,7 @@
             btn.style.borderLeft = 'none';
             btn.style.boxShadow = 'none';
             btn.style.border = '2px dashed #ddd';
-            btn.innerHTML = `<span class="menu-title" style="font-size:24px; color:#888; margin-bottom:0;">${title}</span>`;
+            btn.innerHTML = `<span class="menu-title" style="font-size:24px; color:#888; margin:0;">${title}</span>`;
             btn.onclick = action;
             parent.appendChild(btn);
         }
@@ -293,22 +322,20 @@
         function nextQuizQuestion(type) {
             let qData, options;
             
-            if (type === 'h_zhuyin') {
-                qData = getRandom(DB.hunter.chinese_zhuyin);
-                options = qData.opts;
-            } else if (type === 'h_char') {
-                qData = getRandom(DB.hunter.chinese_char);
-                options = qData.opts;
-            } else if (type === 'h_english') {
-                qData = getRandom(DB.hunter.english);
+            if (type === 'h_zhuyin') { qData = getRandom(DB.hunter.chinese_zhuyin); options = qData.opts; }
+            else if (type === 'h_char') { qData = getRandom(DB.hunter.chinese_char); options = qData.opts; }
+            else if (type === 'h_english') { 
+                qData = getRandom(DB.hunter.english); 
                 let wrongs = DB.hunter.english.filter(x => x.q !== qData.q).map(x => x.q);
                 options = shuffle([qData.q, ...shuffle(wrongs).slice(0,3)]);
-            } else if (type === 'a_zhuyin') {
+            }
+            else if (type === 'a_zhuyin') {
                 let char = getRandom(DB.angus.zhuyin);
                 qData = { q: "?", a: char, audio: char, speak: "請找出 "+char };
                 let wrongs = DB.angus.zhuyin.filter(x => x !== char);
                 options = shuffle([char, ...shuffle(wrongs).slice(0,3)]);
-            } else if (type === 'a_english') {
+            }
+            else if (type === 'a_english') {
                 qData = getRandom(DB.angus.english);
                 let wrongs = DB.angus.english.filter(x => x.q !== qData.q).map(x => x.q);
                 options = shuffle([qData.q, ...shuffle(wrongs).slice(0,3)]);
@@ -400,7 +427,6 @@
 
             let config = mathConfig;
             let qText = "", qSub = "", ans = "";
-
             let currentType = config.type;
             if (config.type === 'mix') {
                 const types = ['add', 'sub', 'decomp', 'clock'];
@@ -411,22 +437,18 @@
                 let a = Math.floor(Math.random() * (config.range + 1));
                 let b = Math.floor(Math.random() * (config.range + 1 - a));
                 qText = `${a} + ${b} = ?`; ans = (a+b).toString();
-            } 
-            else if (currentType === 'sub') {
+            } else if (currentType === 'sub') {
                 let a = Math.floor(Math.random() * (config.range + 1));
                 let b = Math.floor(Math.random() * (a + 1));
                 qText = `${a} - ${b} = ?`; ans = (a-b).toString();
-            }
-            else if (currentType === 'decomp') {
+            } else if (currentType === 'decomp') {
                 let total = Math.floor(Math.random() * (config.range - 1)) + 2; 
                 let p1 = Math.floor(Math.random() * total);
                 qText = `${total} 可以分成`; qSub = `${p1} 和 ?`; ans = (total - p1).toString();
-            }
-            else if (currentType === 'count') {
+            } else if (currentType === 'count') {
                 let count = Math.floor(Math.random() * 10) + 1;
                 qText = "🍎".repeat(count); qSub = "有幾個?"; ans = count.toString();
-            }
-            else if (currentType === 'clock') {
+            } else if (currentType === 'clock') {
                 document.getElementById('clock-canvas').classList.remove('hidden');
                 document.getElementById('math-q').classList.add('hidden');
                 let h = Math.floor(Math.random() * 12) + 1;
@@ -477,18 +499,8 @@
 
         // --- 通用功能 ---
         function backToMenu() {
-            if (currentRole === 'hunter') {
-                // 如果是在單元內按結束，回到該科目的選單
-                if (currentQ) { 
-                    // 這裡有點簡化，為了正確回到該科目，我們需要知道現在在哪一科
-                    // 不過為了 UX 簡單，回到三大科目分類最安全
-                    showHunterCategories();
-                } else {
-                    showHunterCategories();
-                }
-            } else {
-                showAngusCategories();
-            }
+            if (currentRole === 'hunter') { showHunterCategories(); } 
+            else { showAngusCategories(); }
         }
 
         function speakCurrent() {

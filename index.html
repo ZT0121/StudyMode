@@ -78,6 +78,7 @@
         .quiz-container { width: 95%; max-width: 900px; display: flex; flex-direction: column; align-items: center; padding-top: 20px; }
         .card { background: white; width: 100%; padding: 40px 20px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; margin-bottom: 30px; position: relative; box-sizing: border-box; }
         
+        /* 題目大字 */
         .q-text { 
             font-size: 100px; 
             color: #333; 
@@ -92,7 +93,7 @@
         
         .q-sub { font-size: 24px; color: #666; margin-top: 5px; margin-bottom: 15px; white-space: nowrap; }
 
-        /* 選項排版 */
+        /* 選項排版 (RWD 橫向) */
         .options-grid { 
             display: flex; 
             width: 100%; 
@@ -105,23 +106,21 @@
         .opt-btn { 
             background: white; 
             border: 4px solid #f0f0f0; 
-            padding: 10px; 
-            /* 調整字體大小，避免太擠 */
-            font-size: 48px; 
+            padding: 5px;          /* 縮小內距，把空間留給字 */
+            font-size: 42px;       /* 🛠️ 字體縮小，避免撐破 */
             border-radius: 25px; 
             color: #555; 
-            min-height: 140px; 
+            min-height: 120px;     /* 高度稍微調小一點點 */
             box-shadow: 0 6px 0 #ddd; 
             box-sizing: border-box;
             display: flex;
             align-items: center;
             justify-content: center;
             flex: 1;                   
-            min-width: 150px;          
-            max-width: 300px; 
+            min-width: 140px;          
+            max-width: 300px;
             
-            /* ❗關鍵修改：禁止文字換行❗ */
-            white-space: nowrap;
+            white-space: nowrap;   /* 🛠️ 強制不准換行 */
         }
 
         .opt-btn:active { transform: translateY(6px); box-shadow: none; }
@@ -183,8 +182,10 @@
             document.getElementById('home-view').classList.add('hidden');
             document.getElementById('navbar').classList.remove('hidden');
             document.getElementById('app-container').classList.remove('hidden');
+            
             document.body.className = role === 'hunter' ? 'hunter-app' : 'angus-app';
             document.getElementById('nav-title').innerText = role === 'hunter' ? 'Hunter 專屬' : 'Angus 專屬';
+            
             if (role === 'hunter') { showHunterCategories(); } 
             else { showAngusCategories(); }
         }
@@ -349,12 +350,12 @@
                 let char = getRandom(DB.angus.zhuyin);
                 qData = { q: "?", a: char, audio: char, speak: "請找出 "+char };
                 let wrongs = DB.angus.zhuyin.filter(x => x !== char);
-                options = shuffle([char, ...shuffle(wrongs).slice(0,2)]);
+                options = shuffle([char, ...shuffle(wrongs).slice(0,3)]);
             }
             else if (type === 'a_english') {
                 qData = getRandom(DB.angus.english);
                 let wrongs = DB.angus.english.filter(x => x.q !== qData.q).map(x => x.q);
-                options = shuffle([qData.q, ...shuffle(wrongs).slice(0,2)]);
+                options = shuffle([qData.q, ...shuffle(wrongs).slice(0,3)]);
             }
 
             currentQ = qData;

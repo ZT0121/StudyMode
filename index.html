@@ -166,7 +166,7 @@
     <div id="home-view">
         <div class="score-card">
             <h2 class="use-zhuyin" style="margin:0; color:#333; font-size:28px;">⛏️ Minecraft 集點卡</h2>
-            <div style="color:#666; font-size:16px; margin-top:5px;">集滿 10 格換 20 分鐘遊戲時間</div>
+            <div class="use-zhuyin" style="color:#666; font-size:16px; margin-top:5px;">集滿 10 點換 20 分鐘 Minecraft 遊戲時間</div>
             
             <div class="stamp-grid" id="stamp-grid">
                 </div>
@@ -190,14 +190,14 @@
         <div class="role-card" onclick="selectRole('hunter')" style="border-left: 6px solid #4facfe;">
             <div class="role-avatar" style="background:#e3f2fd;">👦</div>
             <div class="role-info">
-                <h2>哥哥 Hunter</h2>
+                <h2>Hunter</h2>
                 <p>國語、數學、英文</p>
             </div>
         </div>
         <div class="role-card" onclick="selectRole('angus')" style="border-left: 6px solid #ff9a9e;">
             <div class="role-avatar" style="background:#fff3cd;">👶</div>
             <div class="role-info">
-                <h2>弟弟 Angus</h2>
+                <h2>Angus</h2>
                 <p>注音、數󠇡數、時鐘</p>
             </div>
         </div>
@@ -244,8 +244,8 @@
         }
 
         function addManualStamp() {
-            let pwd = prompt("請輸入媽媽密碼 (8888) 來蓋章：");
-            if (pwd === "8888") {
+            let pwd = prompt("請輸入密碼來蓋章：");
+            if (pwd === "0329") {
                 stampCount++;
                 localStorage.setItem('stampCount', stampCount);
                 updateScoreUI();
@@ -290,9 +290,9 @@
         }
 
         function redeemReward() {
-            let pwd = prompt("請輸入媽媽密碼 (8888) 進行兌換：");
-            if (pwd === "8888") {
-                if (confirm(`確定要用 10 點兌換 Minecraft 20分鐘嗎？\n(目前共有 ${stampCount} 點)`)) {
+            let pwd = prompt("請輸入密碼進行兌換：");
+            if (pwd === "0329") {
+                if (confirm(`確定要用 10 點兌換 Minecraft 20 分鐘嗎？\n(目前共有 ${stampCount} 點)`)) {
                     stampCount -= GOAL_STAMPS; 
                     localStorage.setItem('stampCount', stampCount);
                     updateScoreUI();

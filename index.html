@@ -172,6 +172,10 @@
             <div class="stamp-grid" id="stamp-grid">
                 </div>
 
+            <div id="stamp-status" class="score-text" style="margin: 10px 0; font-size: 20px; color: #555; font-weight:bold;">
+                目前集點：0 點
+            </div>
+            
             <div class="admin-controls">
                 <button class="btn" onclick="addManualStamp()" 
                     style="background:#2196F3; color:white; flex:1; padding:10px; font-size:18px; border-bottom: 4px solid #0d47a1;">
@@ -270,6 +274,9 @@
         function updateScoreUI() {
             document.getElementById('score-display').innerText = totalScore;
 
+            // 🛠️ 更新中間的文字顯示 (修正重點)
+            document.getElementById('stamp-status').innerText = `目前集點：${stampCount} 點`;
+            
             // 更新集點卡格子 (顯示目前的點數，不論是否超過10點)
             // 超過10點就全亮，等待兌換
             const boxes = document.querySelectorAll('.stamp-box');
@@ -295,7 +302,7 @@
         function redeemReward() {
             let pwd = prompt("請輸入密碼進行兌換");
             if (pwd === "0329") {
-                if (confirm(`確定要用 10 點兌換 Minecraft 20 分鐘嗎？`)) {
+                if (confirm(`確定要用 10 點兌換 Minecraft 20分鐘嗎？\n(目前共有 ${stampCount} 點)`)) {
                     stampCount -= GOAL_STAMPS; // 扣除 10 點
                     localStorage.setItem('stampCount', stampCount);
                     updateScoreUI();

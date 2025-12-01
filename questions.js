@@ -234,6 +234,7 @@ const DB = {
         // --- 數學科 ---
         mathUnits: [
             { id: "h_u3", name: "分與合", desc:"10可以分成...?", type: "decomp", range: 10 },
+            { id: "h_u4", name: "順序與多少", desc:"從左/右邊數...", type: "seq", range: 10 },
             { id: "h_u6", name: "加一加", desc:"10以內的加法", type: "add", range: 10 },
             { id: "h_u8", name: "減一減", desc:"10以內的減法", type: "sub", range: 10 },
             { id: "h_u9", name: "讀鐘錶", desc:"整點與半點", type: "clock", range: "half" },

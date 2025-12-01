@@ -1,6 +1,6 @@
 {
-  "name": "Classroom",
-  "short_name": "Classroom",
+  "name": "StudyMode",
+  "short_name": "StudyMode",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f4f6f8",

@@ -167,7 +167,7 @@
     <div id="home-view">
         <div class="score-card">
             <h2 class="use-zhuyin" style="margin:0; color:#333; font-size:28px;">⛏️ Minecraft 集點卡</h2>
-            <div style="color:#666; font-size:16px; margin-top:5px;">集滿 10 格換 20 分鐘遊戲時間</div>
+            <div style="color:#666; font-size:16px; margin-top:5px;">集滿 10 格換 20 分鐘 Minecraft 時間</div>
             
             <div class="stamp-grid" id="stamp-grid">
                 </div>
@@ -188,15 +188,15 @@
         <div class="role-card" onclick="selectRole('hunter')" style="border-left: 6px solid #4facfe;">
             <div class="role-avatar" style="background:#e3f2fd;">👦</div>
             <div class="role-info">
-                <h2>哥哥 Hunter</h2>
+                <h2>Hunter</h2>
                 <p>國語、數學、英文</p>
             </div>
         </div>
         <div class="role-card" onclick="selectRole('angus')" style="border-left: 6px solid #ff9a9e;">
             <div class="role-avatar" style="background:#fff3cd;">👶</div>
             <div class="role-info">
-                <h2>弟弟 Angus</h2>
-                <p>注音、數數、時鐘</p>
+                <h2>Angus</h2>
+                <p>注音、數󠇡數、時鐘</p>
             </div>
         </div>
     </div>
@@ -245,7 +245,7 @@
 
         // 手動加點 (家長專用)
         function addManualStamp() {
-            let pwd = prompt("請輸入媽媽密碼 (8888) 來蓋章：");
+            let pwd = prompt("請輸入密碼來蓋章");
             if (pwd === "8888") {
                 stampCount++;
                 localStorage.setItem('stampCount', stampCount);
@@ -293,9 +293,9 @@
         }
 
         function redeemReward() {
-            let pwd = prompt("請輸入媽媽密碼 (8888) 進行兌換：");
-            if (pwd === "8888") {
-                if (confirm(`確定要用 10 點兌換 Minecraft 20分鐘嗎？`)) {
+            let pwd = prompt("請輸入密碼進行兌換");
+            if (pwd === "0329") {
+                if (confirm(`確定要用 10 點兌換 Minecraft 20 分鐘嗎？`)) {
                     stampCount -= GOAL_STAMPS; // 扣除 10 點
                     localStorage.setItem('stampCount', stampCount);
                     updateScoreUI();
@@ -361,7 +361,7 @@
             container.innerHTML = `<div class="menu-list" id="menu-list"></div>`;
             const list = document.getElementById('menu-list');
             addMenuItem(list, "🗣️ 注音", "", () => showAngusSubject('zhuyin'), '#ffd1dc');
-            addMenuItem(list, "🍎 數數", "", () => showAngusSubject('math'), '#fff5ba');
+            addMenuItem(list, "🍎 數󠇡數", "", () => showAngusSubject('math'), '#fff5ba');
             addMenuItem(list, "🐶 英文", "", () => showAngusSubject('english'), '#baffc9');
         }
 
@@ -602,7 +602,7 @@
                     qText = `<div style="display:flex; flex-wrap:wrap; justify-content:center; gap:5px; line-height:1.2;">${icon.repeat(count)}</div>`;
                     qSub = ""; 
                     ans = count.toString();
-                    speakText = "有幾個？";
+                    speakText = "有幾個󠇡？";
                 } else if (currentType === 'clock') {
                     let h = Math.floor(Math.random() * 12) + 1;
                     let m = 0;

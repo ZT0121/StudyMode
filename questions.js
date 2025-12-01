@@ -8,7 +8,7 @@ const DB = {
         chinese_zhuyin: [
             { q: "爸爸", a: "ㄅㄚˋ ㄅㄚ˙" }, { q: "媽媽", a: "ㄇㄚ ㄇㄚ˙" },
             { q: "貓咪", a: "ㄇㄠ ㄇㄧ" }, { q: "蘋果", a: "ㄆㄧㄥˊ ㄍㄨㄛˇ" },
-            { q: "小朋友", a: "ㄒㄧㄠˇ ㄆㄥˊ ㄧㄡˇ" }, { q: "月亮", a: "ㄩㄝˋ ㄌㄧㄤˋ" },
+            { q: "房子", a: "ㄈㄤˊ ㄗ˙" }, { q: "月亮", a: "ㄩㄝˋ ㄌㄧㄤˋ" },
             { q: "太陽", a: "ㄊㄞˋ ㄧㄤˊ" }, { q: "水杯", a: "ㄕㄨㄟˇ ㄅㄟ" },
             { q: "火車", a: "ㄏㄨㄛˇ ㄔㄜ" }, { q: "白兔子", a: "ㄅㄞˊ ㄊㄨˋ ㄗ˙" },
             { q: "小鳥", a: "ㄒㄧㄠˇ ㄋㄧㄠˇ" }, { q: "花朵", a: "ㄏㄨㄚ ㄉㄨㄛˇ" },
@@ -35,7 +35,7 @@ const DB = {
             { q: "兒子", a: "ㄦˊ ㄗ˙" }, { q: "耳朵", a: "ㄦˇ ㄉㄨㄛ˙" },
             { q: "鱷魚", a: "ㄜˋ ㄩˊ" }, { q: "企鵝", a: "ㄑㄧˋ ㄜˊ" },
             { q: "水母", a: "ㄕㄨㄟˇ ㄇㄨˇ" }, { q: "朋友", a: "ㄆㄥˊ ㄧㄡˇ" },
-            { q: "玩遊戲", a: "ㄨㄢˊ ㄧㄡˊ ㄒㄧˋ" }, { q: "上下", a: "ㄕㄤˋ ㄒㄧㄚˋ" },
+            { q: "玩遊戲", a: "ㄨㄢˊ ㄧㄡˊ ㄒㄧˋ" }, { q: "上面", a: "ㄕㄤˋ ㄇㄧㄢˋ" },
             { q: "高低", a: "ㄍㄠ ㄉㄧ" }, { q: "飛翔", a: "ㄈㄟ ㄒㄧㄤˊ" },
             { q: "蜜蜂", a: "ㄇㄧˋ ㄈㄥ" }, { q: "魚竿", a: "ㄩˊ ㄍㄢ" },
             { q: "魚缸", a: "ㄩˊ ㄍㄤ" }, { q: "購買", a: "ㄍㄡˋ ㄇㄞˇ" },
@@ -95,20 +95,140 @@ const DB = {
             { q: "腳", a: "ㄐㄧㄠˇ" }, { q: "學校", a: "ㄒㄩㄝˊ ㄒㄧㄠˋ" },
             { q: "輪流", a: "ㄌㄨㄣˊ ㄌㄧㄡˊ" }, { q: "團體", a: "ㄊㄨㄢˊ ㄊㄧˇ" },
             { q: "名聲", a: "ㄇㄧㄥˊ ㄕㄥ" }, { q: "拍手", a: "ㄆㄞ ㄕㄡˇ" },
-            { q: "左右", a: "ㄗㄨㄛˇ ㄧㄡˋ" }, { q: "這個", a: "ㄓㄜˋ ㄍㄜ˙" },
+            { q: "左邊", a: "ㄗㄨㄛˇ ㄅㄧㄢ" }, { q: "這個", a: "ㄓㄜˋ ㄍㄜ˙" },
             { q: "你的", a: "ㄋㄧˇ ㄉㄜ˙" }, { q: "我的", a: "ㄨㄛˇ ㄉㄜ˙" },
-            { q: "他的", a: "ㄊㄚ ㄉㄜ˙" }
+            { q: "他的", a: "ㄊㄚ ㄉㄜ˙" }, { q: "也是", a: "ㄧㄝˇ ㄕˋ" },
+            { q: "右邊", a: "ㄧㄡˋ ㄅㄧㄢ" }, { q: "也是", a: "ㄧㄝˇ ㄕˋ" },
+            { q: "下面", a: "ㄒㄧㄚˋ ㄇㄧㄢˋ" }, { q: "我們", a: "ㄨㄛˇ ㄇㄣ˙" },
+            { q: "是誰", a: "ㄕˋ ㄕㄟˊ" }, { q: "你好", a: "ㄋㄧˇ ㄏㄠˇ" },
+            { q: "分開", a: "ㄈㄣ ㄎㄞ" }, { q: "下雨了", a: "ㄒㄧㄚˋ ㄩˇ ㄌㄜ˙" },
+            { q: "了解", a: "ㄌㄧㄠˇ ㄐㄧㄝˇ" }, { q: "啊!", a: "ㄚ˙" },
+            { q: "多少", a: "ㄉㄨㄛ ㄕㄠˇ" }, { q: "個性", a: "ㄍㄜˋ ㄒㄧㄥˋ" },
+            { q: "一個", a: "ㄧˊ ㄍㄜ˙" }, { q: "千金", a: "ㄑㄧㄢ ㄐㄧㄣ" },
+            { q: "和諧", a: "ㄏㄜˊ ㄒㄧㄝˊ" }, { q: "陪伴", a: "ㄆㄟˊ ㄅㄢˋ" },
+            { q: "身高", a: "ㄕㄣ ㄍㄠ" }, { q: "山丘", a: "ㄕㄢ ㄑㄧㄡ" },
+            { q: "到達", a: "ㄉㄠˋ ㄉㄚˊ" }, { q: "大樹", a: "ㄉㄚˋ ㄕㄨˋ" },
+            { q: "海岸", a: "ㄏㄞˇ ㄢˋ" }, { q: "課程", a: "ㄎㄜˋ ㄔㄥˊ" },
+            { q: "兩人", a: "ㄌㄧㄤˇ ㄖㄣˊ" }, { q: "人群", a: "ㄖㄣˊ ㄑㄩㄣˊ" },
+            { q: "拉扯", a: "ㄌㄚ ㄔㄜˇ" }, { q: "看見", a: "ㄎㄢˋ ㄐㄧㄢˋ" },
+            { q: "找尋", a: "ㄓㄠˇ ㄒㄩㄣˊ" }, { q: "一隻雞", a: "ㄧˋ ㄓ ㄐㄧ" },
+            { q: "青草", a: "ㄑㄧㄥ ㄘㄠˇ" }, { q: "打開", a: "ㄉㄚˇ ㄎㄞ" },
+            { q: "心跳", a: "ㄒㄧㄣ ㄊㄧㄠˋ" }, { q: "師長", a: "ㄕ ㄓㄤˇ" },
+            { q: "馬路", a: "ㄇㄚˇ ㄌㄨˋ" }, { q: "坦白", a: "ㄊㄢˇ ㄅㄞˊ" },
+            { q: "走路", a: "ㄗㄡˇ ㄌㄨˋ" }, { q: "在家", a: "ㄗㄞˋ ㄐㄧㄚ" },
+            { q: "向前", a: "ㄒㄧㄤˋ ㄑㄧㄢˊ" }, { q: "說話", a: "ㄕㄨㄛ ㄏㄨㄚˋ" },
+            { q: "從來", a: "ㄘㄨㄥˊ ㄌㄞˊ" }, { q: "一頭牛", a: "ㄧˋ ㄊㄡˊ ㄋㄧㄡˊ" },
+            { q: "人頭", a: "ㄖㄣˊ ㄊㄡˊ" }, { q: "那天", a: "ㄋㄚˋ ㄊㄧㄢ" },
+            { q: "平安", a: "ㄆㄧㄥˊ ㄢ" }, { q: "門口", a: "ㄇㄣˊ ㄎㄡˇ" },
         ],
         
-        // --- 英文科 ---
+// --- 英文科 (Hunter 菁英版) ---
         english: [
+            // 學校與生活
+            { q: "School", hint: "🏫", audio: "school" },
+            { q: "Teacher", hint: "👩‍🏫", audio: "teacher" },
+            { q: "Book", hint: "📖", audio: "book" },
+            { q: "Pencil", hint: "✏️", audio: "pencil" },
+            { q: "Bag", hint: "🎒", audio: "bag" },
+            { q: "Eraser", hint: "🧼", audio: "eraser" },
+            { q: "Ruler", hint: "📏", audio: "ruler" },
+            { q: "Desk", hint: "🪑", audio: "desk" },
+            { q: "Computer", hint: "💻", audio: "computer" },
+
+            // 身體部位 (From Head to Toe)
+            { q: "Head", hint: "💆", audio: "head" },
+            { q: "Toe", hint: "🦶", audio: "toe" },
+            { q: "Hand", hint: "✋", audio: "hand" },
+            { q: "Knee", hint: "🦵", audio: "knee" },
             { q: "Eyes", hint: "👁️", audio: "eyes" },
             { q: "Nose", hint: "👃", audio: "nose" },
             { q: "Mouth", hint: "👄", audio: "mouth" },
+            { q: "Ear", hint: "👂", audio: "ear" },
+            { q: "Leg", hint: "🦵", audio: "leg" },
+            { q: "Arm", hint: "💪", audio: "arm" },
+
+            // 動物 (Dear Zoo & More)
+            { q: "Lion", hint: "🦁", audio: "lion" },
+            { q: "Monkey", hint: "🐵", audio: "monkey" },
+            { q: "Elephant", hint: "🐘", audio: "elephant" },
+            { q: "Snake", hint: "🐍", audio: "snake" },
+            { q: "Dog", hint: "🐶", audio: "dog" },
+            { q: "Cat", hint: "🐱", audio: "cat" },
+            { q: "Rabbit", hint: "🐰", audio: "rabbit" },
+            { q: "Tiger", hint: "🐯", audio: "tiger" },
+            { q: "Giraffe", hint: "🦒", audio: "giraffe" },
+            { q: "Zebra", hint: "🦓", audio: "zebra" },
+            { q: "Horse", hint: "🐴", audio: "horse" },
+            { q: "Cow", hint: "🐮", audio: "cow" },
+            { q: "Pig", hint: "🐷", audio: "pig" },
+            { q: "Bird", hint: "🐦", audio: "bird" },
+            { q: "Fish", hint: "🐟", audio: "fish" },
+            { q: "Bear", hint: "🐻", audio: "bear" },
+
+            // 動作 (Action Verbs)
             { q: "Clap", hint: "👏", audio: "clap" },
             { q: "Stomp", hint: "🦶", audio: "stomp" },
+            { q: "Run", hint: "🏃", audio: "run" },
+            { q: "Jump", hint: "🦘", audio: "jump" },
             { q: "Sit down", hint: "🪑", audio: "sit down" },
-            { q: "Monster", hint: "👹", audio: "monster" }
+            { q: "Turn", hint: "🔄", audio: "turn" },
+            { q: "Swim", hint: "🏊", audio: "swim" },
+            { q: "Dance", hint: "💃", audio: "dance" },
+            { q: "Sing", hint: "🎤", audio: "sing" },
+            { q: "Sleep", hint: "😴", audio: "sleep" },
+            { q: "Eat", hint: "🍽️", audio: "eat" },
+
+            // 節慶 (Halloween/Christmas)
+            { q: "Monster", hint: "👹", audio: "monster" },
+            { q: "Pumpkin", hint: "🎃", audio: "pumpkin" },
+            { q: "Ghost", hint: "👻", audio: "ghost" },
+            { q: "Santa", hint: "🎅", audio: "santa" },
+            { q: "Gift", hint: "🎁", audio: "gift" },
+            { q: "Snowman", hint: "⛄", audio: "snowman" },
+            
+            // 形狀與顏色
+            { q: "Red", hint: "🔴", audio: "red" },
+            { q: "Blue", hint: "🔵", audio: "blue" },
+            { q: "Green", hint: "🟢", audio: "green" },
+            { q: "Yellow", hint: "🟡", audio: "yellow" },
+            { q: "Orange", hint: "🟠", audio: "orange" },
+            { q: "Purple", hint: "🟣", audio: "purple" },
+            { q: "Pink", hint: "🩷", audio: "pink" },
+            { q: "Black", hint: "⚫", audio: "black" },
+            { q: "White", hint: "⚪", audio: "white" },
+            { q: "Circle", hint: "⭕", audio: "circle" },
+            { q: "Square", hint: "🟥", audio: "square" },
+            { q: "Star", hint: "⭐", audio: "star" },
+            { q: "Heart", hint: "❤️", audio: "heart" },
+            { q: "Triangle", hint: "🔺", audio: "triangle" },
+
+            // 食物 (Food)
+            { q: "Apple", hint: "🍎", audio: "apple" },
+            { q: "Banana", hint: "🍌", audio: "banana" },
+            { q: "Pizza", hint: "🍕", audio: "pizza" },
+            { q: "Hamburger", hint: "🍔", audio: "hamburger" },
+            { q: "Noodles", hint: "🍜", audio: "noodles" },
+            { q: "Rice", hint: "🍚", audio: "rice" },
+            { q: "Ice Cream", hint: "🍦", audio: "ice cream" },
+            { q: "Cake", hint: "🍰", audio: "cake" },
+            { q: "Milk", hint: "🥛", audio: "milk" },
+            { q: "Water", hint: "💧", audio: "water" },
+
+            // 自然/天氣
+            { q: "Sun", hint: "☀️", audio: "sun" },
+            { q: "Moon", hint: "🌙", audio: "moon" },
+            { q: "Cloud", hint: "☁️", audio: "cloud" },
+            { q: "Rain", hint: "🌧️", audio: "rain" },
+            { q: "Snow", hint: "❄️", audio: "snow" },
+            { q: "Flower", hint: "🌸", audio: "flower" },
+            { q: "Tree", hint: "🌳", audio: "tree" },
+            
+            // 家庭 (Family)
+            { q: "Daddy", hint: "👨", audio: "daddy" },
+            { q: "Mommy", hint: "👩", audio: "mommy" },
+            { q: "Baby", hint: "👶", audio: "baby" },
+            { q: "Grandpa", hint: "👴", audio: "grandpa" },
+            { q: "Grandma", hint: "👵", audio: "grandma" }
         ],
 
         // --- 數學科 ---
@@ -126,18 +246,79 @@ const DB = {
         zhuyin: "ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄐㄑㄒㄓㄔㄕㄖㄗㄘㄙㄧㄨㄩㄚㄛㄜㄝㄞㄟㄠㄡㄢㄣㄤㄥㄦ".split(""),
         
         mathUnits: [
-            { id: "a_count", name: "數數練習", desc:"數數看有幾個?", type: "count", range: 30 },
+            { id: "a_count", name: "數數練習", desc:"數數看有幾個?", type: "count", range: 20 },
             { id: "a_clock", name: "看時鐘", desc:"長針指著12", type: "clock", range: "full" }
         ],
         
+// 🌟 弟弟的英文豪華擴充包 (50字)
         english: [
+            // 顏色
             { q: "Red", hint: "🔴", audio: "red" },
             { q: "Blue", hint: "🔵", audio: "blue" },
             { q: "Green", hint: "🟢", audio: "green" },
+            { q: "Yellow", hint: "🟡", audio: "yellow" },
+            { q: "Orange", hint: "🟠", audio: "orange" },
+            { q: "Purple", hint: "🟣", audio: "purple" },
+            { q: "Pink", hint: "🩷", audio: "pink" },
+            { q: "Black", hint: "⚫", audio: "black" },
+            { q: "White", hint: "⚪", audio: "white" },
+            
+            // 動物 (農場/動物園/家)
             { q: "Cat", hint: "🐱", audio: "cat" },
             { q: "Dog", hint: "🐶", audio: "dog" },
+            { q: "Pig", hint: "🐷", audio: "pig" },
+            { q: "Duck", hint: "🦆", audio: "duck" },
+            { q: "Bear", hint: "🐻", audio: "bear" },
+            { q: "Fish", hint: "🐟", audio: "fish" },
+            { q: "Bird", hint: "🐦", audio: "bird" },
+            { q: "Horse", hint: "🐴", audio: "horse" },
+            { q: "Cow", hint: "🐮", audio: "cow" },
+            { q: "Sheep", hint: "🐑", audio: "sheep" },
+            { q: "Chicken", hint: "🐔", audio: "chicken" },
+            { q: "Rabbit", hint: "🐰", audio: "rabbit" },
+            { q: "Tiger", hint: "🐯", audio: "tiger" },
+            { q: "Lion", hint: "🦁", audio: "lion" },
+            { q: "Monkey", hint: "🐵", audio: "monkey" },
+            { q: "Elephant", hint: "🐘", audio: "elephant" },
+            { q: "Zebra", hint: "🦓", audio: "zebra" },
+            { q: "Giraffe", hint: "🦒", audio: "giraffe" },
+            { q: "Snake", hint: "🐍", audio: "snake" },
+            { q: "Mouse", hint: "🐭", audio: "mouse" },
+            
+            // 食物
             { q: "Apple", hint: "🍎", audio: "apple" },
-            { q: "Banana", hint: "🍌", audio: "banana" }
+            { q: "Banana", hint: "🍌", audio: "banana" },
+            { q: "Milk", hint: "🥛", audio: "milk" },
+            { q: "Cake", hint: "🍰", audio: "cake" },
+            { q: "Egg", hint: "🥚", audio: "egg" },
+            { q: "Bread", hint: "🍞", audio: "bread" },
+            { q: "Water", hint: "💧", audio: "water" },
+            { q: "Juice", hint: "🧃", audio: "juice" },
+            { q: "Ice Cream", hint: "🍦", audio: "ice cream" },
+            { q: "Cookie", hint: "🍪", audio: "cookie" },
+            
+            // 交通工具
+            { q: "Bus", hint: "🚌", audio: "bus" },
+            { q: "Car", hint: "🚗", audio: "car" },
+            { q: "Train", hint: "🚂", audio: "train" },
+            { q: "Plane", hint: "✈️", audio: "plane" },
+            { q: "Bike", hint: "🚲", audio: "bike" },
+            
+            // 自然/天氣
+            { q: "Sun", hint: "☀️", audio: "sun" },
+            { q: "Moon", hint: "🌙", audio: "moon" },
+            { q: "Star", hint: "⭐", audio: "star" },
+            { q: "Rain", hint: "🌧️", audio: "rain" },
+            { q: "Snow", hint: "❄️", audio: "snow" },
+            { q: "Flower", hint: "🌸", audio: "flower" },
+            { q: "Tree", hint: "🌳", audio: "tree" },
+            
+            // 身體/家庭/動作
+            { q: "Daddy", hint: "👨", audio: "daddy" },
+            { q: "Mommy", hint: "👩", audio: "mommy" },
+            { q: "Baby", hint: "👶", audio: "baby" },
+            { q: "Ball", hint: "⚽", audio: "ball" },
+            { q: "Book", hint: "📖", audio: "book" }
         ]
     }
 };

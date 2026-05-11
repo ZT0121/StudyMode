@@ -1294,7 +1294,7 @@ function nextCalendarQuestion() {
         const weekIdx = (startDay + day - 1) % 7;
         question = `${month} 月 ${day} 號是星期幾？`;
         ans = `星期${weekNames[weekIdx]}`;
-        const wrongWeeks = weekNames.filter((_,i) => i !== weekIdx);
+        const wrongWeeks = weekNames.filter((_,i) => i !== weekIdx).map(w => `星期${w}`);
         opts = shuffle([ans, ...shuffle(wrongWeeks).slice(0,3)]);
     } else {
         // 第幾個星期X是幾號
@@ -1448,7 +1448,7 @@ function nextCalendarInMix() {
         const weekIdx = (startDay + day - 1) % 7;
         question = `${mIdx+1} 月 ${day} 號是星期幾？`;
         ans = `星期${weekNames[weekIdx]}`;
-        opts = shuffle([ans, ...shuffle(weekNames.filter((_,i)=>i!==weekIdx)).slice(0,3)]);
+        opts = shuffle([ans, ...shuffle(weekNames.filter((_,i)=>i!==weekIdx).map(w=>`星期${w}`)).slice(0,3)]);
     } else {
         const targetWeek = Math.floor(Math.random() * 7);
         const allDays = [];

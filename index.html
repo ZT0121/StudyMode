@@ -373,6 +373,7 @@ function showHunterSubject(subject) {
         addMenuItem(list, "🏆 注音挑戰", "10題計分",     () => { pushNav(() => showHunterSubject('chinese')); startZhuyin('h_zhuyin', 'challenge'); },   '#e91e63');
         addMenuItem(list, "📝 照樣寫短語", "選詞完成句型", () => { pushNav(() => showHunterSubject('chinese')); startPhrase(); },        '#ff7043');
         addMenuItem(list, "✏️ 造句練習",  "選詞完成句子", () => { pushNav(() => showHunterSubject('chinese')); startSentence(); },      '#7b1fa2');
+        addMenuItem(list, "🔀 句型排列",  "排出正確句子", () => { pushNav(() => showHunterSubject('chinese')); startSentenceOrder(); }, '#00897b');
         addMenuItem(list, "🔤 選詞填入",  "選詞填入句子", () => { pushNav(() => showHunterSubject('chinese')); startFillIn(); },         '#00897b');
         addMenuItem(list, "🔁 反義／同義詞","選出對應的詞",() => { pushNav(() => showHunterSubject('chinese')); startWordRelation(); },  '#1565c0');
         addMenuItem(list, "📖 閱讀測驗",  "短文選擇題",   () => { pushNav(() => showHunterSubject('chinese')); startReading(); },        '#6a1b9a');
@@ -908,6 +909,85 @@ function renderSentence() {
 }
 
 // ════════════════════════════════════════
+//  句型排列
+// ════════════════════════════════════════
+let soSelected = [];
+let soPool = [];
+
+function startSentenceOrder() {
+    setNavTitle('句型排列');
+    soPool = shuffle([...DB.hunter.sentence_order]);
+    const c = document.getElementById('app-container');
+    c.innerHTML = `
+      <div class="quiz-container" style="align-items:center;">
+        <div class="card" style="width:100%;box-sizing:border-box;">
+          <div class="use-zhuyin" style="font-size:20px;color:#888;margin-bottom:12px;">把詞語排成正確的句子</div>
+          <div id="so-display" class="use-zhuyin" style="font-size:30px;min-height:52px;border:2px dashed #ccc;border-radius:14px;padding:10px 16px;color:#333;text-align:left;word-break:break-all;"></div>
+        </div>
+        <div id="so-words" style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;width:100%;max-width:600px;margin:16px 0;"></div>
+        <div class="submit-row">
+          <button class="btn btn-clear use-zhuyin" onclick="soClear()">清除</button>
+          <button class="btn btn-submit use-zhuyin" onclick="soSubmit()">送出</button>
+        </div>
+        <button class="btn" onclick="navBack()" style="margin-top:24px;color:#888;font-size:20px;background:none;">⬅️ 結束練習</button>
+      </div>`;
+    nextSentenceOrderQuestion();
+}
+
+function nextSentenceOrderQuestion() {
+    soSelected = [];
+    if (soPool.length === 0) soPool = shuffle([...DB.hunter.sentence_order]);
+    const item = soPool.pop();
+    currentQ = { ans: item.sentence, type: 'sentence_order' };
+
+    const display = document.getElementById('so-display');
+    if (display) display.textContent = '';
+
+    const words = shuffle([...item.words]);
+    const container = document.getElementById('so-words');
+    if (!container) return;
+    container.innerHTML = '';
+
+    words.forEach(w => {
+        const btn = document.createElement('button');
+        btn.className = 'opt-btn btn use-zhuyin';
+        btn.style.cssText = 'font-size:28px;padding:10px 20px;min-height:60px;min-width:auto;';
+        btn.textContent = w;
+        btn.onclick = () => soTap(btn, w);
+        container.appendChild(btn);
+    });
+}
+
+function soTap(btn, word) {
+    if (btn.disabled) return;
+    btn.disabled = true;
+    btn.style.opacity = '0.35';
+    soSelected.push({ word, btn });
+    document.getElementById('so-display').textContent = soSelected.map(s => s.word).join('');
+}
+
+function soClear() {
+    soSelected.forEach(s => { s.btn.disabled = false; s.btn.style.opacity = '1'; });
+    soSelected = [];
+    document.getElementById('so-display').textContent = '';
+}
+
+function soSubmit() {
+    if (soSelected.length === 0) return;
+    const built = soSelected.map(s => s.word).join('');
+    if (built === currentQ.ans) {
+        showFlash('✅ 答對！', true);
+        addScore();
+        setTimeout(nextSentenceOrderQuestion, 1000);
+    } else {
+        showFlash('❌ 再想想', false);
+        soSelected.forEach(s => { s.btn.disabled = false; s.btn.style.opacity = '1'; });
+        soSelected = [];
+        document.getElementById('so-display').textContent = '';
+    }
+}
+
+// ════════════════════════════════════════
 //  數字分解（拖曳版）
 // ════════════════════════════════════════
 function startDecomp(config) {
@@ -1184,6 +1264,7 @@ function nextMathQuestion() {
             document.getElementById('math-input').innerText = '';
             nextCalendarInMix();
             return;
+        } else if (type === 'clock') {
             const h = Math.floor(Math.random() * 12) + 1;
             const half = (config.range === 'half' || (config.type === 'mix' && Math.random() > 0.5)) && Math.random() > 0.5;
             const m   = half ? 30 : 0;

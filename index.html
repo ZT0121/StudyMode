@@ -1709,7 +1709,7 @@ function startFillIn() {
     c.innerHTML = `
       <div class="quiz-container" style="align-items:center;">
         <div class="card">
-          <div id="fi-q" class="q-text no-zhuyin" style="font-size:36px;line-height:2;"></div>
+          <div id="fi-q" class="q-text use-zhuyin" style="font-size:36px;line-height:2;"></div>
         </div>
         <div class="options-grid" id="fi-opts"></div>
         <button class="btn" onclick="navBack()" style="margin-top:24px;color:#888;font-size:20px;background:none;">⬅️ 結束練習</button>
@@ -1847,11 +1847,8 @@ function nextCorrectChar() {
     if (!correctCharPool.length) correctCharPool = shuffle([...DB.hunter.correct_char]);
     const item = correctCharPool.pop();
     currentQ = { ans: item.correct, type: 'correctchar' };
-    const html = item.sentence.replace(
-        `【${item.wrong}】`,
-        `<span class="wrong-char">【${item.wrong}】</span>`
-    );
-    document.getElementById('cc-sentence').innerHTML = html;
+    const plainSentence = item.sentence.replace(`【${item.wrong}】`, item.wrong);
+    document.getElementById('cc-sentence').textContent = plainSentence;
     const opts = document.getElementById('cc-opts');
     opts.innerHTML = '';
     shuffle([...item.opts]).forEach(opt => {

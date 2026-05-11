@@ -1,4 +1,4 @@
-const CACHE_NAME = 'studymode-v9';
+const CACHE_NAME = 'studymode-v10';
 
 self.addEventListener('install', event => {
   self.skipWaiting();

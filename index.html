@@ -383,16 +383,14 @@ function showHunterSubject(subject) {
         setNavTitle('數學');
         DB.hunter.mathUnits.forEach(u => {
             addMenuItem(list, u.name, u.desc, () => {
-                if (u.type === 'shape')        { pushNav(() => showHunterSubject('math')); startShape(); }
-                else if (u.type === 'calendar'){ pushNav(() => showHunterSubject('math')); startCalendar(); }
-                else if (u.type === 'decomp')  { pushNav(() => showHunterSubject('math')); startDecomp(u); }
+                if (u.type === 'decomp') { pushNav(() => showHunterSubject('math')); startDecomp(u); }
                 else { pushNav(() => showHunterSubject('math')); startMath(u); }
             }, '#4facfe');
         });
         addMenuItem(list, "📐 幾何計數",   "數圖形有幾個",   () => { pushNav(() => showHunterSubject('math')); startShapeCount(); },   '#0277bd');
         addMenuItem(list, "📝 應用題",     "文字題列式計算", () => { pushNav(() => showHunterSubject('math')); startWordProblem(); }, '#2e7d32');
         addMenuItem(list, "🔢 規律題",     "找出缺少的數",   () => { pushNav(() => showHunterSubject('math')); startPattern(); },     '#6a1b9a');
-        addMenuItem(list, "📅 日曆推算",   "昨天/明天/跨月", () => { pushNav(() => showHunterSubject('math')); startCalendarAdv(); },'#00695c');
+        addMenuItem(list, "📅 日曆練習",   "月曆 & 日期推算", () => { pushNav(() => showHunterSubject('math')); startCalendarAdv(); },'#00695c');
     } else if (subject === 'english') {
         setNavTitle('英文');
         addMenuItem(list, "🔊 聽音選字", "聽音辨認單字", () => { pushNav(() => showHunterSubject('english')); startEnglish('h_english', 'listen'); }, '#a8e6cf');
@@ -1132,6 +1130,8 @@ function nextMathQuestion() {
     document.getElementById('math-input').innerText = "";
     document.getElementById('half-btn').classList.add('hidden');
     document.getElementById('clock-canvas').classList.add('hidden');
+    const numpadEl = document.querySelector('.numpad');
+    if (numpadEl) numpadEl.style.display = '';
     const mathQ = document.getElementById('math-q');
     if (mathQ) mathQ.classList.remove('hidden');
 
@@ -1142,7 +1142,7 @@ function nextMathQuestion() {
 
     do {
         if (type === 'mix') {
-            const types = ['add', 'sub', 'decomp', 'clock', 'seq', 'num100', 'money', 'add2d', 'sub2d', 'shape', 'calendar'];
+            const types = ['add', 'sub', 'decomp', 'clock', 'seq', 'num100', 'money', 'add2d', 'sub2d'];
             type = types[Math.floor(Math.random() * types.length)];
         }
 
@@ -1285,7 +1285,17 @@ function nextMathQuestion() {
         document.getElementById('clock-canvas').classList.remove('hidden');
         mathQ.innerText = qText;
         mathQ.style.fontSize = "50px";
-        if (ans.endsWith(':30')) document.getElementById('half-btn').classList.remove('hidden');
+        // Build 4 MC options
+        const optsSet = new Set([ans]);
+        while (optsSet.size < 4) {
+            const rh = Math.floor(Math.random() * 12) + 1;
+            const rm = Math.random() > 0.5 ? 30 : 0;
+            optsSet.add(rm === 30 ? `${rh}:30` : `${rh}:00`);
+        }
+        const shuffledOpts = shuffle([...optsSet]);
+        const numpad = document.querySelector('.numpad');
+        if (numpad) numpad.style.display = 'none';
+        document.getElementById('math-sub').innerHTML = `<div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:16px;">${shuffledOpts.map(o => `<button class="opt-btn btn" onclick="clockChooseMC('${o}')" style="font-size:36px;padding:14px 24px;">${o}</button>`).join('')}</div>`;
     } else {
         mathQ.innerHTML = qText;
         mathQ.style.fontSize = type === 'seq' || type === 'count' || type === 'money' ? "56px" : "80px";
@@ -1321,6 +1331,16 @@ function checkMath() {
         inputDiv.style.color = "#dc3545";
         showFlash('❌ 再試', false);
         setTimeout(() => { inputBuffer = ""; inputDiv.innerText = ""; inputDiv.style.color = "#4a90e2"; }, 500);
+    }
+}
+
+function clockChooseMC(val) {
+    if (val === currentQ.ans) {
+        showFlash('✅ 答對！', true);
+        addScore();
+        setTimeout(nextMathQuestion, 800);
+    } else {
+        showFlash('❌ 再試試', false);
     }
 }
 
@@ -2064,7 +2084,7 @@ function nextPattern() {
 //  日曆推算進階
 // ════════════════════════════════════════
 function startCalendarAdv() {
-    setNavTitle('日曆推算');
+    setNavTitle('日曆練習');
     const c = document.getElementById('app-container');
     c.innerHTML = `
       <div class="quiz-container" style="align-items:center;">
@@ -2084,8 +2104,8 @@ function nextCalendarAdv() {
     const days     = daysInMonth[mIdx];
     const startDay = Math.floor(Math.random()*7);
 
-    // 隨機選題型：0=幾號是星期幾, 1=昨天/明天/後天是幾號, 2=再過X天是幾月幾日（含跨月）, 3=這個月有幾個星期X
-    const qType = Math.floor(Math.random()*4);
+    // 隨機選題型：0=幾號是星期幾, 1=昨天/明天/後天是幾號, 2=再過X天是幾月幾日（含跨月）, 3=這個月有幾個星期X, 4=第幾個星期X是幾號
+    const qType = Math.floor(Math.random()*5);
     let question='', ans='', opts=[];
 
     if (qType === 0) {
@@ -2127,7 +2147,7 @@ function nextCalendarAdv() {
             const wrongs = [`${month} 月 ${tDay} 號`, `${nMonth} 月 ${nDay+1} 號`, `${nMonth} 月 ${nDay+2} 號`].filter(s=>s!==ans);
             opts = shuffle([ans, ...wrongs.slice(0,3)]);
         }
-    } else {
+    } else if (qType === 3) {
         // 這個月有幾個星期X
         const targetW = Math.floor(Math.random()*7);
         const count = Math.floor((days - ((targetW - startDay + 7)%7) - 1)/7)+1;
@@ -2136,6 +2156,20 @@ function nextCalendarAdv() {
         const wrongs = [count-1, count+1].filter(v=>v>0&&v!==count).map(v=>`${v} 個`);
         wrongs.push(`${count+2} 個`);
         opts = shuffle([ans, ...shuffle(wrongs).slice(0,3)]);
+    } else {
+        // 第幾個星期X是幾號
+        const targetWeek = Math.floor(Math.random()*7);
+        const allDays = [];
+        for (let d=1;d<=days;d++) { if ((startDay+d-1)%7===targetWeek) allDays.push(d); }
+        if (allDays.length === 0) { nextCalendarAdv(); return; }
+        const nth = Math.floor(Math.random()*Math.min(allDays.length,4));
+        const nthNames = ['第一個','第二個','第三個','第四個'];
+        question = `${month} 月${nthNames[nth]}星期${weekNames[targetWeek]}是幾號？`;
+        ans = `${allDays[nth]} 號`;
+        const wrongDays = allDays.filter((_,i)=>i!==nth).map(d=>`${d} 號`);
+        const extraWrong = [allDays[nth]+1,allDays[nth]-1,allDays[nth]+7]
+            .filter(d=>d>=1&&d<=days&&!allDays.includes(d)).map(d=>`${d} 號`);
+        opts = shuffle([ans, ...shuffle([...wrongDays,...extraWrong]).slice(0,3)]);
     }
 
     currentQ = { ans, type:'calendaradv' };

@@ -364,8 +364,10 @@ const DB = {
             { id: "h_money",  name: "錢幣換算", desc: "10元和1元", type: "money", range: 100 },
             { id: "h_add2d",  name: "二位數加法", desc: "28+4、35+13…", type: "add2d", range: 50 },
             { id: "h_sub2d",  name: "二位數減法", desc: "38-18、30-8…", type: "sub2d", range: 50 },
-            { id: "h_clock",  name: "讀鐘錶", desc: "整點與半點", type: "clock", range: "half" },
-            { id: "h_mix",    name: "期末大挑戰", desc: "綜合練習", type: "mix", range: 18 },
+            { id: "h_clock",  name: "讀鐘錶",    desc: "整點與半點",       type: "clock",    range: "half" },
+            { id: "h_shape",  name: "圖形和形體", desc: "三角形、正方形…",  type: "shape",    range: 0 },
+            { id: "h_cal",    name: "幾月幾日",   desc: "看月曆回答問題",   type: "calendar", range: 0 },
+            { id: "h_mix",    name: "期末大挑戰", desc: "綜合練習",         type: "mix",      range: 18 },
         ]
     },
 

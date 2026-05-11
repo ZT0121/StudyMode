@@ -349,7 +349,9 @@ function showHunterSubject(subject) {
         setNavTitle('數學');
         DB.hunter.mathUnits.forEach(u => {
             addMenuItem(list, u.name, u.desc, () => {
-                if (u.type === 'decomp') { pushNav(() => showHunterSubject('math')); startDecomp(u); }
+                if (u.type === 'shape')    { pushNav(() => showHunterSubject('math')); startShape(); }
+                else if (u.type === 'calendar') { pushNav(() => showHunterSubject('math')); startCalendar(); }
+                else if (u.type === 'decomp') { pushNav(() => showHunterSubject('math')); startDecomp(u); }
                 else { pushNav(() => showHunterSubject('math')); startMath(u); }
             }, '#4facfe');
         });
@@ -1025,7 +1027,7 @@ function nextMathQuestion() {
 
     do {
         if (type === 'mix') {
-            const types = ['add', 'sub', 'decomp', 'clock', 'seq', 'num100', 'money', 'add2d', 'sub2d'];
+            const types = ['add', 'sub', 'decomp', 'clock', 'seq', 'num100', 'money', 'add2d', 'sub2d', 'shape', 'calendar'];
             type = types[Math.floor(Math.random() * types.length)];
         }
 
@@ -1106,7 +1108,24 @@ function nextMathQuestion() {
             if (a - b < 0) { continue; }
             qText = `<span class='math-num'>${a}</span> - <span class='math-num'>${b}</span> =`;
             ans   = String(a - b);
-        } else if (type === 'clock') {
+        } else if (type === 'shape') {
+            // mix 模式下直接啟動圖形題
+            const mathQel = document.getElementById('math-q');
+            if (mathQel) mathQel.classList.add('hidden');
+            document.getElementById('clock-canvas').classList.add('hidden');
+            document.getElementById('math-sub').innerHTML = '';
+            document.getElementById('math-input').innerText = '';
+            // 在 numpad 上方插入圖形選擇題
+            nextShapeInMix();
+            return;
+        } else if (type === 'calendar') {
+            const mathQel = document.getElementById('math-q');
+            if (mathQel) mathQel.classList.add('hidden');
+            document.getElementById('clock-canvas').classList.add('hidden');
+            document.getElementById('math-sub').innerHTML = '';
+            document.getElementById('math-input').innerText = '';
+            nextCalendarInMix();
+            return;
             const h = Math.floor(Math.random() * 12) + 1;
             const half = (config.range === 'half' || (config.type === 'mix' && Math.random() > 0.5)) && Math.random() > 0.5;
             const m   = half ? 30 : 0;
@@ -1167,8 +1186,338 @@ function checkMath() {
 }
 
 // ════════════════════════════════════════
-//  時鐘繪製
+//  圖形和形體
 // ════════════════════════════════════════
+const SHAPES = [
+    { name:'三角形', svg:'<polygon points="75,8 140,132 10,132" fill="#4a90e2" stroke="#2a6bb3" stroke-width="3"/>' },
+    { name:'正方形', svg:'<rect x="10" y="10" width="130" height="130" fill="#e74c3c" stroke="#c0392b" stroke-width="3"/>' },
+    { name:'長方形', svg:'<rect x="5"  y="35" width="140" height="80"  fill="#27ae60" stroke="#1e8449" stroke-width="3"/>' },
+    { name:'圓形',   svg:'<circle cx="75" cy="75" r="68" fill="#f39c12" stroke="#d68910" stroke-width="3"/>' },
+];
+
+function startShape() {
+    setNavTitle('圖形和形體');
+    const c = document.getElementById('app-container');
+    c.innerHTML = `
+      <div class="quiz-container" style="align-items:center;">
+        <div class="card" id="shape-card" style="padding:20px;"></div>
+        <div class="options-grid" id="shape-opts"></div>
+        <button class="btn" onclick="navBack()" style="margin-top:24px;color:#888;font-size:20px;background:none;">⬅️ 結束練習</button>
+      </div>`;
+    nextShapeQuestion();
+}
+
+function nextShapeQuestion() {
+    const mode = Math.random() > 0.5 ? 'shape2name' : 'name2shape';
+    const pick  = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+    const wrongs = shuffle(SHAPES.filter(s => s.name !== pick.name));
+    currentQ = { ans: pick.name, type: 'shape', mode };
+
+    const card = document.getElementById('shape-card');
+    const opts = document.getElementById('shape-opts');
+    opts.innerHTML = '';
+
+    if (mode === 'shape2name') {
+        // 顯示圖形 → 選名稱
+        card.innerHTML = `
+          <div class="use-zhuyin" style="font-size:20px;color:#888;margin-bottom:10px;">這是什麼形狀？</div>
+          <svg viewBox="0 0 150 150" width="140" height="140">${pick.svg}</svg>`;
+        const optList = shuffle([pick, ...wrongs.slice(0,3)]);
+        optList.forEach(s => {
+            const btn = document.createElement('button');
+            btn.className = 'opt-btn btn use-zhuyin';
+            btn.style.fontSize = '36px';
+            btn.textContent = s.name;
+            btn.onclick = () => {
+                if (s.name === pick.name) {
+                    btn.classList.add('correct'); showFlash('✅ 答對！', true); addScore();
+                    setTimeout(nextShapeQuestion, 800);
+                } else { btn.classList.add('wrong'); showFlash('❌ 再想想', false); }
+            };
+            opts.appendChild(btn);
+        });
+    } else {
+        // 顯示名稱 → 選圖形
+        card.innerHTML = `
+          <div class="use-zhuyin" style="font-size:20px;color:#888;margin-bottom:10px;">選出正確的圖形</div>
+          <div class="use-zhuyin" style="font-size:60px;font-weight:bold;color:#333;">${pick.name}</div>`;
+        const optList = shuffle([pick, ...wrongs.slice(0,3)]);
+        optList.forEach(s => {
+            const btn = document.createElement('button');
+            btn.className = 'opt-btn btn';
+            btn.style.cssText = 'padding:10px; min-width:120px; min-height:100px;';
+            btn.innerHTML = `<svg viewBox="0 0 150 150" width="90" height="90">${s.svg}</svg>`;
+            btn.onclick = () => {
+                if (s.name === pick.name) {
+                    btn.classList.add('correct'); showFlash('✅ 答對！', true); addScore();
+                    setTimeout(nextShapeQuestion, 800);
+                } else { btn.classList.add('wrong'); showFlash('❌ 再想想', false); }
+            };
+            opts.appendChild(btn);
+        });
+    }
+}
+
+// ════════════════════════════════════════
+//  幾月幾日（月曆練習）
+// ════════════════════════════════════════
+function startCalendar() {
+    setNavTitle('幾月幾日');
+    const c = document.getElementById('app-container');
+    c.innerHTML = `
+      <div class="quiz-container" style="align-items:center;">
+        <div class="card" id="cal-card" style="padding:16px;"></div>
+        <div class="use-zhuyin" id="cal-question" style="font-size:28px;color:#333;margin:16px 0;text-align:center;max-width:550px;"></div>
+        <div class="options-grid" id="cal-opts"></div>
+        <button class="btn" onclick="navBack()" style="margin-top:24px;color:#888;font-size:20px;background:none;">⬅️ 結束練習</button>
+      </div>`;
+    nextCalendarQuestion();
+}
+
+function nextCalendarQuestion() {
+    // 隨機產生一個月份（1月～12月，28~31天）
+    const monthNames = ['一','二','三','四','五','六','七','八','九','十','十一','十二'];
+    const daysInMonth = [31,28,31,30,31,30,31,31,30,31,30,31];
+    const mIdx   = Math.floor(Math.random() * 12);        // 0~11
+    const month  = mIdx + 1;
+    const days   = daysInMonth[mIdx];
+    const startDay = Math.floor(Math.random() * 7);       // 0=日 1=一 2=二...
+    const weekNames = ['日','一','二','三','四','五','六'];
+
+    // 選題型
+    const qType = Math.random() > 0.5 ? 'day2week' : 'week2day';
+    let question = '', ans = '', opts = [];
+
+    if (qType === 'day2week') {
+        // 幾號是星期幾
+        const day = Math.floor(Math.random() * days) + 1;
+        const weekIdx = (startDay + day - 1) % 7;
+        question = `${month} 月 ${day} 號是星期幾？`;
+        ans = `星期${weekNames[weekIdx]}`;
+        const wrongWeeks = weekNames.filter((_,i) => i !== weekIdx);
+        opts = shuffle([ans, ...shuffle(wrongWeeks).slice(0,3)]);
+    } else {
+        // 第幾個星期X是幾號
+        const targetWeek = Math.floor(Math.random() * 7); // 要找的星期幾
+        // 找出該月所有這個星期幾的日期
+        const allDays = [];
+        for (let d = 1; d <= days; d++) {
+            if ((startDay + d - 1) % 7 === targetWeek) allDays.push(d);
+        }
+        if (allDays.length === 0) { nextCalendarQuestion(); return; }
+        const nth = Math.floor(Math.random() * Math.min(allDays.length, 4)); // 第1~4個
+        const nthNames = ['第一個','第二個','第三個','第四個'];
+        question = `${month} 月${nthNames[nth]}星期${weekNames[targetWeek]}是幾號？`;
+        ans = `${allDays[nth]} 號`;
+        // 產生錯誤選項
+        const wrongDays = allDays.filter((_,i) => i !== nth).map(d => `${d} 號`);
+        const extraWrong = [allDays[nth]+1, allDays[nth]-1, allDays[nth]+7]
+            .filter(d => d >= 1 && d <= days && !allDays.includes(d))
+            .map(d => `${d} 號`);
+        opts = shuffle([ans, ...shuffle([...wrongDays, ...extraWrong]).slice(0,3)]);
+    }
+
+    currentQ = { ans, type: 'calendar' };
+
+    // 畫月曆
+    const calCard = document.getElementById('cal-card');
+    if (!calCard) return;
+    let html = `
+      <div class="use-zhuyin" style="font-size:22px;font-weight:bold;color:#333;margin-bottom:10px;">${monthNames[mIdx]} 月</div>
+      <table style="width:100%;border-collapse:collapse;font-family:'ZhuyinFont','Microsoft JhengHei',sans-serif;">
+        <tr>`;
+    weekNames.forEach(w => {
+        const color = w==='日' ? '#e74c3c' : w==='六' ? '#4a90e2' : '#555';
+        html += `<th style="padding:6px 2px;font-size:16px;color:${color};">${w}</th>`;
+    });
+    html += '</tr><tr>';
+    // 空格補齊第一週
+    for (let i = 0; i < startDay; i++) html += '<td></td>';
+    for (let d = 1; d <= days; d++) {
+        const col = (startDay + d - 1) % 7;
+        const color = col === 0 ? '#e74c3c' : col === 6 ? '#4a90e2' : '#333';
+        html += `<td style="text-align:center;padding:5px 2px;font-size:18px;color:${color};">${d}</td>`;
+        if (col === 6 && d < days) html += '</tr><tr>';
+    }
+    html += '</tr></table>';
+    calCard.innerHTML = html;
+
+    // 顯示題目
+    const qEl = document.getElementById('cal-question');
+    if (qEl) qEl.textContent = question;
+
+    // 顯示選項
+    const optsEl = document.getElementById('cal-opts');
+    if (!optsEl) return;
+    optsEl.innerHTML = '';
+    opts.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'opt-btn btn use-zhuyin';
+        btn.style.fontSize = '30px';
+        btn.style.minWidth = '130px';
+        btn.textContent = opt;
+        btn.onclick = () => {
+            if (opt === ans) {
+                btn.classList.add('correct'); showFlash('✅ 答對！', true); addScore();
+                setTimeout(nextCalendarQuestion, 900);
+            } else { btn.classList.add('wrong'); showFlash('❌ 再看看', false); }
+        };
+        optsEl.appendChild(btn);
+    });
+}
+
+function nextShapeInMix() {
+    const mode = Math.random() > 0.5 ? 'shape2name' : 'name2shape';
+    const pick  = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+    const wrongs = shuffle(SHAPES.filter(s => s.name !== pick.name));
+    currentQ = { ans: pick.name, type: 'shape' };
+
+    const mathQ = document.getElementById('math-q');
+    const mathSub = document.getElementById('math-sub');
+    const mathInput = document.getElementById('math-input');
+    if (!mathQ) return;
+    mathQ.classList.remove('hidden');
+    mathInput.innerText = '';
+
+    if (mode === 'shape2name') {
+        mathQ.innerHTML = `<svg viewBox="0 0 150 150" width="130" height="130">${pick.svg}</svg>`;
+        mathSub.textContent = '這是什麼形狀？';
+        const optList = shuffle([pick, ...wrongs.slice(0,3)]);
+        const numpad = document.querySelector('.numpad');
+        if (!numpad) return;
+        const shapeRow = document.createElement('div');
+        shapeRow.id = 'shape-inline';
+        shapeRow.className = 'options-grid';
+        shapeRow.style.cssText = 'margin-bottom:16px;width:100%;max-width:500px;';
+        optList.forEach(s => {
+            const btn = document.createElement('button');
+            btn.className = 'opt-btn btn use-zhuyin';
+            btn.style.fontSize = '30px';
+            btn.textContent = s.name;
+            btn.onclick = () => {
+                if (s.name === pick.name) {
+                    btn.classList.add('correct'); showFlash('✅ 答對！', true); addScore();
+                    document.getElementById('shape-inline')?.remove();
+                    setTimeout(nextMathQuestion, 800);
+                } else { btn.classList.add('wrong'); showFlash('❌ 再想想', false); }
+            };
+            shapeRow.appendChild(btn);
+        });
+        numpad.parentNode.insertBefore(shapeRow, numpad);
+    } else {
+        mathQ.innerHTML = `<span style="font-size:60px;">${pick.name}</span>`;
+        mathSub.textContent = '選出正確的圖形';
+        const optList = shuffle([pick, ...wrongs.slice(0,3)]);
+        const numpad = document.querySelector('.numpad');
+        if (!numpad) return;
+        const shapeRow = document.createElement('div');
+        shapeRow.id = 'shape-inline';
+        shapeRow.className = 'options-grid';
+        shapeRow.style.cssText = 'margin-bottom:16px;width:100%;max-width:500px;';
+        optList.forEach(s => {
+            const btn = document.createElement('button');
+            btn.className = 'opt-btn btn';
+            btn.style.cssText = 'padding:8px;min-width:110px;min-height:90px;';
+            btn.innerHTML = `<svg viewBox="0 0 150 150" width="80" height="80">${s.svg}</svg>`;
+            btn.onclick = () => {
+                if (s.name === pick.name) {
+                    btn.classList.add('correct'); showFlash('✅ 答對！', true); addScore();
+                    document.getElementById('shape-inline')?.remove();
+                    setTimeout(nextMathQuestion, 800);
+                } else { btn.classList.add('wrong'); showFlash('❌ 再想想', false); }
+            };
+            shapeRow.appendChild(btn);
+        });
+        numpad.parentNode.insertBefore(shapeRow, numpad);
+    }
+}
+
+function nextCalendarInMix() {
+    // 在 math-q 區域放月曆，選項放在 numpad 上方
+    const monthNames = ['一','二','三','四','五','六','七','八','九','十','十一','十二'];
+    const daysInMonth = [31,28,31,30,31,30,31,31,30,31,30,31];
+    const weekNames = ['日','一','二','三','四','五','六'];
+    const mIdx = Math.floor(Math.random() * 12);
+    const days = daysInMonth[mIdx];
+    const startDay = Math.floor(Math.random() * 7);
+    const qType = Math.random() > 0.5 ? 'day2week' : 'week2day';
+    let question = '', ans = '', opts = [];
+
+    if (qType === 'day2week') {
+        const day = Math.floor(Math.random() * days) + 1;
+        const weekIdx = (startDay + day - 1) % 7;
+        question = `${mIdx+1} 月 ${day} 號是星期幾？`;
+        ans = `星期${weekNames[weekIdx]}`;
+        opts = shuffle([ans, ...shuffle(weekNames.filter((_,i)=>i!==weekIdx)).slice(0,3)]);
+    } else {
+        const targetWeek = Math.floor(Math.random() * 7);
+        const allDays = [];
+        for (let d = 1; d <= days; d++) {
+            if ((startDay + d - 1) % 7 === targetWeek) allDays.push(d);
+        }
+        if (allDays.length === 0) { nextCalendarInMix(); return; }
+        const nth = Math.floor(Math.random() * Math.min(allDays.length, 4));
+        const nthNames = ['第一個','第二個','第三個','第四個'];
+        question = `${mIdx+1} 月${nthNames[nth]}星期${weekNames[targetWeek]}是幾號？`;
+        ans = `${allDays[nth]} 號`;
+        const extra = [allDays[nth]+1,allDays[nth]-1,allDays[nth]+7].filter(d=>d>=1&&d<=days&&!allDays.includes(d)).map(d=>`${d} 號`);
+        const wrongDays = allDays.filter((_,i)=>i!==nth).map(d=>`${d} 號`);
+        opts = shuffle([ans, ...shuffle([...wrongDays,...extra]).slice(0,3)]);
+    }
+
+    currentQ = { ans, type: 'calendar' };
+
+    // 畫月曆在 math-q
+    const mathQ = document.getElementById('math-q');
+    const mathSub = document.getElementById('math-sub');
+    if (!mathQ) return;
+    mathQ.classList.remove('hidden');
+    mathQ.style.fontSize = '14px';
+    let calHtml = `<div style="font-family:'ZhuyinFont','Microsoft JhengHei',sans-serif;">
+      <div style="font-size:18px;font-weight:bold;margin-bottom:6px;">${monthNames[mIdx]} 月</div>
+      <table style="border-collapse:collapse;width:100%;">
+        <tr>`;
+    weekNames.forEach(w => {
+        const col = w==='日'?'#e74c3c':w==='六'?'#4a90e2':'#555';
+        calHtml += `<th style="font-size:13px;padding:3px;color:${col};">${w}</th>`;
+    });
+    calHtml += '</tr><tr>';
+    for (let i = 0; i < startDay; i++) calHtml += '<td></td>';
+    for (let d = 1; d <= days; d++) {
+        const col2 = (startDay+d-1)%7===0?'#e74c3c':(startDay+d-1)%7===6?'#4a90e2':'#333';
+        calHtml += `<td style="text-align:center;padding:3px;font-size:15px;color:${col2};">${d}</td>`;
+        if ((startDay+d-1)%7===6 && d<days) calHtml += '</tr><tr>';
+    }
+    calHtml += '</tr></table></div>';
+    mathQ.innerHTML = calHtml;
+    mathSub.textContent = question;
+
+    const numpad = document.querySelector('.numpad');
+    if (!numpad) return;
+    document.getElementById('cal-inline')?.remove();
+    const calRow = document.createElement('div');
+    calRow.id = 'cal-inline';
+    calRow.className = 'options-grid';
+    calRow.style.cssText = 'margin-bottom:16px;width:100%;max-width:500px;';
+    opts.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'opt-btn btn use-zhuyin';
+        btn.style.fontSize = '26px';
+        btn.style.minWidth = '120px';
+        btn.textContent = opt;
+        btn.onclick = () => {
+            if (opt === ans) {
+                btn.classList.add('correct'); showFlash('✅ 答對！', true); addScore();
+                calRow.remove(); mathQ.style.fontSize = '80px';
+                setTimeout(nextMathQuestion, 900);
+            } else { btn.classList.add('wrong'); showFlash('❌ 再看看', false); }
+        };
+        calRow.appendChild(btn);
+    });
+    numpad.parentNode.insertBefore(calRow, numpad);
+}
+
+
 function drawClock(hour, minute) {
     const canvas = document.getElementById('clock-canvas');
     const ctx = canvas.getContext('2d');

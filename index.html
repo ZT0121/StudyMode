@@ -140,6 +140,34 @@
         .flash-popup.show { opacity: 1; transform: translate(-50%,-50%) scale(1); }
         .flash-popup.ok  { background: rgba(76,175,80,0.92); }
         .flash-popup.err { background: rgba(244,67,54,0.9); }
+
+        /* ── 閱讀測驗 ── */
+        .passage-box { background:#fffde7; border-left:6px solid #f9a825; border-radius:16px; padding:18px 20px; font-size:24px; line-height:2; color:#333; width:100%; max-width:600px; box-sizing:border-box; margin-bottom:16px; font-family:'ZhuyinFont',"Microsoft JhengHei",sans-serif; }
+        .passage-title { font-size:20px; color:#f9a825; font-weight:bold; margin-bottom:8px; font-family:'ZhuyinFont',"Microsoft JhengHei",sans-serif; }
+        .reading-progress { font-size:18px; color:#888; margin-bottom:8px; font-family:'ZhuyinFont',"Microsoft JhengHei",sans-serif; }
+
+        /* ── 改錯別字 ── */
+        .correct-char-sentence { font-size:36px; color:#333; line-height:2; margin:16px 0; text-align:center; font-family:'ZhuyinFont',"Microsoft JhengHei",sans-serif; }
+        .wrong-char { color:#e53935; text-decoration:underline; font-weight:bold; background:#ffebee; border-radius:6px; padding:0 4px; }
+
+        /* ── 應用題 ── */
+        .word-problem-text { font-size:30px; color:#333; line-height:1.9; white-space:pre-line; font-family:'ZhuyinFont',"Microsoft JhengHei",sans-serif; }
+        .formula-hint { font-size:22px; color:#4a90e2; margin-top:10px; font-family:"Microsoft JhengHei",sans-serif; }
+
+        /* ── 規律題 ── */
+        .pattern-row { display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; margin:16px 0; }
+        .pattern-num { width:64px; height:64px; background:white; border:3px solid #90caf9; border-radius:14px; font-size:28px; font-weight:bold; color:#1565c0; display:flex; align-items:center; justify-content:center; font-family:"Microsoft JhengHei",sans-serif; }
+        .pattern-blank { background:#e3f2fd; border:3px dashed #4a90e2; color:#4a90e2; font-size:30px; }
+        .pattern-arrow { font-size:24px; color:#aaa; }
+
+        /* ── 錢幣改良 ── */
+        .coin-row { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:8px 0; }
+        .coin-10 { width:56px; height:56px; background:linear-gradient(135deg,#ffd54f,#ff8f00); border-radius:50%; border:3px solid #e65100; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:bold; color:#fff; box-shadow:0 3px 6px rgba(0,0,0,0.2); font-family:"Microsoft JhengHei",sans-serif; }
+        .coin-5  { width:52px; height:52px; background:linear-gradient(135deg,#b0bec5,#607d8b); border-radius:50%; border:3px solid #455a64; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:bold; color:#fff; box-shadow:0 3px 6px rgba(0,0,0,0.2); font-family:"Microsoft JhengHei",sans-serif; }
+        .coin-1  { width:44px; height:44px; background:linear-gradient(135deg,#e0e0e0,#9e9e9e); border-radius:50%; border:3px solid #757575; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:bold; color:#fff; box-shadow:0 3px 6px rgba(0,0,0,0.2); font-family:"Microsoft JhengHei",sans-serif; }
+
+        /* ── 量詞配對 ── */
+        .measure-q { font-size:52px; color:#333; letter-spacing:6px; font-family:'ZhuyinFont',"Microsoft JhengHei",sans-serif; }
     </style>
 </head>
 <body>
@@ -343,18 +371,27 @@ function showHunterSubject(subject) {
         setNavTitle('國語');
         addMenuItem(list, "注音選答",     "聽音選注音",   () => { pushNav(() => showHunterSubject('chinese')); startZhuyin('h_zhuyin', 'free'); },       '#ff9a9e');
         addMenuItem(list, "🏆 注音挑戰", "10題計分",     () => { pushNav(() => showHunterSubject('chinese')); startZhuyin('h_zhuyin', 'challenge'); },   '#e91e63');
-        addMenuItem(list, "📝 照樣寫短語", "選詞完成句型", () => { pushNav(() => showHunterSubject('chinese')); startPhrase(); },                          '#ff7043');
-        addMenuItem(list, "✏️ 造句練習",  "選詞完成句子", () => { pushNav(() => showHunterSubject('chinese')); startSentence(); },                        '#7b1fa2');
+        addMenuItem(list, "📝 照樣寫短語", "選詞完成句型", () => { pushNav(() => showHunterSubject('chinese')); startPhrase(); },        '#ff7043');
+        addMenuItem(list, "✏️ 造句練習",  "選詞完成句子", () => { pushNav(() => showHunterSubject('chinese')); startSentence(); },      '#7b1fa2');
+        addMenuItem(list, "🔤 選詞填入",  "選詞填入句子", () => { pushNav(() => showHunterSubject('chinese')); startFillIn(); },         '#00897b');
+        addMenuItem(list, "🔁 反義／同義詞","選出對應的詞",() => { pushNav(() => showHunterSubject('chinese')); startWordRelation(); },  '#1565c0');
+        addMenuItem(list, "📖 閱讀測驗",  "短文選擇題",   () => { pushNav(() => showHunterSubject('chinese')); startReading(); },        '#6a1b9a');
+        addMenuItem(list, "🔍 改錯別字",  "找出錯的字",   () => { pushNav(() => showHunterSubject('chinese')); startCorrectChar(); },   '#b71c1c');
+        addMenuItem(list, "🧮 量詞配對",  "一隻、一朵…",  () => { pushNav(() => showHunterSubject('chinese')); startMeasureWord(); },   '#e65100');
     } else if (subject === 'math') {
         setNavTitle('數學');
         DB.hunter.mathUnits.forEach(u => {
             addMenuItem(list, u.name, u.desc, () => {
-                if (u.type === 'shape')    { pushNav(() => showHunterSubject('math')); startShape(); }
-                else if (u.type === 'calendar') { pushNav(() => showHunterSubject('math')); startCalendar(); }
-                else if (u.type === 'decomp') { pushNav(() => showHunterSubject('math')); startDecomp(u); }
+                if (u.type === 'shape')        { pushNav(() => showHunterSubject('math')); startShape(); }
+                else if (u.type === 'calendar'){ pushNav(() => showHunterSubject('math')); startCalendar(); }
+                else if (u.type === 'decomp')  { pushNav(() => showHunterSubject('math')); startDecomp(u); }
                 else { pushNav(() => showHunterSubject('math')); startMath(u); }
             }, '#4facfe');
         });
+        addMenuItem(list, "📐 幾何計數",   "數圖形有幾個",   () => { pushNav(() => showHunterSubject('math')); startShapeCount(); },   '#0277bd');
+        addMenuItem(list, "📝 應用題",     "文字題列式計算", () => { pushNav(() => showHunterSubject('math')); startWordProblem(); }, '#2e7d32');
+        addMenuItem(list, "🔢 規律題",     "找出缺少的數",   () => { pushNav(() => showHunterSubject('math')); startPattern(); },     '#6a1b9a');
+        addMenuItem(list, "📅 日曆推算",   "昨天/明天/跨月", () => { pushNav(() => showHunterSubject('math')); startCalendarAdv(); },'#00695c');
     } else if (subject === 'english') {
         setNavTitle('英文');
         addMenuItem(list, "🔊 聽音選字", "聽音辨認單字", () => { pushNav(() => showHunterSubject('english')); startEnglish('h_english', 'listen'); }, '#a8e6cf');
@@ -1082,13 +1119,36 @@ function nextMathQuestion() {
                 ans   = String(result);
             }
         } else if (type === 'money') {
-            // 錢幣：10元和1元組合
-            const tens  = Math.floor(Math.random() * 9) + 1;  // 1~9個10元
-            const ones  = Math.floor(Math.random() * 9);       // 0~8個1元
-            const total = tens * 10 + ones;
-            const coins10 = '🔟'.repeat(tens);
-            const coins1  = ones > 0 ? '🪙'.repeat(ones) : '';
-            qText = `<div style="font-size:40px;flex-wrap:wrap;gap:4px;">${coins10}${coins1}</div>`;
+            // 錢幣：50/10/5/1元組合
+            const sub = Math.floor(Math.random() * 3); // 0=10+1, 1=10+5+1, 2=50+10
+            let coins = [];
+            let total = 0;
+            if (sub === 0) {
+                const t = Math.floor(Math.random() * 5) + 1;
+                const o = Math.floor(Math.random() * 8);
+                total = t * 10 + o;
+                for (let i=0;i<t;i++) coins.push(10);
+                for (let i=0;i<o;i++) coins.push(1);
+            } else if (sub === 1) {
+                const t = Math.floor(Math.random() * 4) + 1;
+                const f = Math.floor(Math.random() * 2);
+                const o = Math.floor(Math.random() * 4);
+                total = t * 10 + f * 5 + o;
+                for (let i=0;i<t;i++) coins.push(10);
+                for (let i=0;i<f;i++) coins.push(5);
+                for (let i=0;i<o;i++) coins.push(1);
+            } else {
+                const fif = Math.floor(Math.random() * 2) + 1;
+                const t   = Math.floor(Math.random() * 4);
+                total = fif * 50 + t * 10;
+                for (let i=0;i<fif;i++) coins.push(50);
+                for (let i=0;i<t;i++) coins.push(10);
+            }
+            const coinHTML = coins.map(v => {
+                const cls = v===50?'coin-10':v===10?'coin-10':v===5?'coin-5':'coin-1';
+                return `<div class="${cls}">${v}元</div>`;
+            }).join('');
+            qText = `<div class="coin-row">${coinHTML}</div>`;
             qSub  = "共有幾元？";
             ans   = String(total);
             speakText = "共有幾元？";
@@ -1536,6 +1596,486 @@ function drawClock(hour, minute) {
     ctx.beginPath(); ctx.rotate(mAngle); ctx.moveTo(0,0); ctx.lineTo(0,-r*0.75); ctx.stroke(); ctx.rotate(-mAngle);
     ctx.beginPath(); ctx.arc(0,0,6,0,2*Math.PI); ctx.fillStyle="#333"; ctx.fill();
     ctx.translate(-r,-r);
+}
+
+// ════════════════════════════════════════
+//  選詞填入
+// ════════════════════════════════════════
+let fillInPool = [];
+function startFillIn() {
+    setNavTitle('選詞填入');
+    fillInPool = shuffle([...DB.hunter.fill_in]);
+    const c = document.getElementById('app-container');
+    c.innerHTML = `
+      <div class="quiz-container" style="align-items:center;">
+        <div class="card">
+          <div id="fi-q" class="q-text no-zhuyin" style="font-size:36px;line-height:2;"></div>
+        </div>
+        <div class="options-grid" id="fi-opts"></div>
+        <button class="btn" onclick="navBack()" style="margin-top:24px;color:#888;font-size:20px;background:none;">⬅️ 結束練習</button>
+      </div>`;
+    nextFillIn();
+}
+function nextFillIn() {
+    if (!fillInPool.length) fillInPool = shuffle([...DB.hunter.fill_in]);
+    const item = fillInPool.pop();
+    currentQ = { ans: item.a, type: 'fillin' };
+    document.getElementById('fi-q').textContent = item.q;
+    const opts = document.getElementById('fi-opts');
+    opts.innerHTML = '';
+    shuffle([...item.opts]).forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'opt-btn btn use-zhuyin';
+        btn.style.cssText = 'font-size:32px; min-width:140px;';
+        btn.textContent = opt;
+        btn.onclick = () => {
+            if (opt === item.a) { btn.classList.add('correct'); showFlash('✅ 答對！',true); addScore(); setTimeout(nextFillIn,800); }
+            else { btn.classList.add('wrong'); showFlash('❌ 再想想',false); }
+        };
+        opts.appendChild(btn);
+    });
+}
+
+// ════════════════════════════════════════
+//  反義詞／同義詞
+// ════════════════════════════════════════
+let wordRelPool = [];
+function startWordRelation() {
+    setNavTitle('反義／同義詞');
+    wordRelPool = shuffle([...DB.hunter.word_relation]);
+    const c = document.getElementById('app-container');
+    c.innerHTML = `
+      <div class="quiz-container" style="align-items:center;">
+        <div class="card">
+          <div id="wr-type" class="q-sub use-zhuyin" style="font-size:22px;color:#888;"></div>
+          <div id="wr-word" class="q-text use-zhuyin" style="font-size:80px;"></div>
+          <div id="wr-q"    class="q-sub use-zhuyin" style="font-size:24px;color:#555;"></div>
+        </div>
+        <div class="options-grid" id="wr-opts"></div>
+        <button class="btn" onclick="navBack()" style="margin-top:24px;color:#888;font-size:20px;background:none;">⬅️ 結束練習</button>
+      </div>`;
+    nextWordRelation();
+}
+function nextWordRelation() {
+    if (!wordRelPool.length) wordRelPool = shuffle([...DB.hunter.word_relation]);
+    const item = wordRelPool.pop();
+    currentQ = { ans: item.a, type: 'wordrel' };
+    document.getElementById('wr-type').textContent = item.type === 'antonym' ? '反義詞' : '同義詞';
+    document.getElementById('wr-word').textContent = `「${item.word}」`;
+    document.getElementById('wr-q').textContent    = item.type === 'antonym' ? '的反義詞是？' : '的同義詞是？';
+    const opts = document.getElementById('wr-opts');
+    opts.innerHTML = '';
+    shuffle([...item.opts]).forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'opt-btn btn use-zhuyin';
+        btn.style.cssText = 'font-size:40px; min-width:120px;';
+        btn.textContent = opt;
+        btn.onclick = () => {
+            if (opt === item.a) { btn.classList.add('correct'); showFlash('✅ 答對！',true); addScore(); setTimeout(nextWordRelation,800); }
+            else { btn.classList.add('wrong'); showFlash('❌ 再想想',false); }
+        };
+        opts.appendChild(btn);
+    });
+}
+
+// ════════════════════════════════════════
+//  閱讀測驗
+// ════════════════════════════════════════
+let readingPassages=[], readingPIdx=0, readingQIdx=0, readingScore=0;
+function startReading() {
+    setNavTitle('閱讀測驗');
+    readingPassages = shuffle([...DB.hunter.reading]);
+    readingPIdx = 0; readingQIdx = 0; readingScore = 0;
+    showReadingQuestion();
+}
+function showReadingQuestion() {
+    if (readingPIdx >= readingPassages.length) { readingPIdx = 0; readingPassages = shuffle([...DB.hunter.reading]); }
+    const passage = readingPassages[readingPIdx];
+    if (readingQIdx >= passage.questions.length) { readingPIdx++; readingQIdx = 0; showReadingQuestion(); return; }
+    const qItem = passage.questions[readingQIdx];
+    const total = passage.questions.length;
+    currentQ = { ans: qItem.a, type: 'reading' };
+    const c = document.getElementById('app-container');
+    c.innerHTML = `
+      <div class="quiz-container" style="align-items:center;">
+        <div class="passage-title use-zhuyin">📖 ${passage.title}</div>
+        <div class="passage-box">${passage.passage}</div>
+        <div class="reading-progress">第 ${readingQIdx+1} / ${total} 題</div>
+        <div class="card" style="padding:20px;">
+          <div class="use-zhuyin" style="font-size:28px;color:#333;">${qItem.q}</div>
+        </div>
+        <div class="options-grid" id="rd-opts"></div>
+        <button class="btn" onclick="navBack()" style="margin-top:24px;color:#888;font-size:20px;background:none;">⬅️ 結束練習</button>
+      </div>`;
+    const opts = document.getElementById('rd-opts');
+    shuffle([...qItem.opts]).forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'opt-btn btn use-zhuyin';
+        btn.style.cssText = 'font-size:28px;';
+        btn.textContent = opt;
+        btn.onclick = () => {
+            if (opt === qItem.a) {
+                btn.classList.add('correct'); showFlash('✅ 答對！',true); addScore();
+                readingQIdx++;
+                setTimeout(showReadingQuestion, 900);
+            } else { btn.classList.add('wrong'); showFlash('❌ 再想想',false); }
+        };
+        opts.appendChild(btn);
+    });
+}
+
+// ════════════════════════════════════════
+//  改錯別字
+// ════════════════════════════════════════
+let correctCharPool = [];
+function startCorrectChar() {
+    setNavTitle('改錯別字');
+    correctCharPool = shuffle([...DB.hunter.correct_char]);
+    const c = document.getElementById('app-container');
+    c.innerHTML = `
+      <div class="quiz-container" style="align-items:center;">
+        <div class="card">
+          <div class="use-zhuyin" style="font-size:20px;color:#888;margin-bottom:10px;">找出句子中的錯別字，選出正確的字</div>
+          <div id="cc-sentence" class="correct-char-sentence"></div>
+        </div>
+        <div class="options-grid" id="cc-opts"></div>
+        <button class="btn" onclick="navBack()" style="margin-top:24px;color:#888;font-size:20px;background:none;">⬅️ 結束練習</button>
+      </div>`;
+    nextCorrectChar();
+}
+function nextCorrectChar() {
+    if (!correctCharPool.length) correctCharPool = shuffle([...DB.hunter.correct_char]);
+    const item = correctCharPool.pop();
+    currentQ = { ans: item.correct, type: 'correctchar' };
+    const html = item.sentence.replace(
+        `【${item.wrong}】`,
+        `<span class="wrong-char">【${item.wrong}】</span>`
+    );
+    document.getElementById('cc-sentence').innerHTML = html;
+    const opts = document.getElementById('cc-opts');
+    opts.innerHTML = '';
+    shuffle([...item.opts]).forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'opt-btn btn use-zhuyin';
+        btn.style.cssText = 'font-size:48px; min-width:100px;';
+        btn.textContent = opt;
+        btn.onclick = () => {
+            if (opt === item.correct) { btn.classList.add('correct'); showFlash('✅ 答對！',true); addScore(); setTimeout(nextCorrectChar,800); }
+            else { btn.classList.add('wrong'); showFlash('❌ 再想想',false); }
+        };
+        opts.appendChild(btn);
+    });
+}
+
+// ════════════════════════════════════════
+//  量詞配對
+// ════════════════════════════════════════
+let measurePool = [];
+function startMeasureWord() {
+    setNavTitle('量詞配對');
+    measurePool = shuffle([...DB.hunter.measure_word]);
+    const c = document.getElementById('app-container');
+    c.innerHTML = `
+      <div class="quiz-container" style="align-items:center;">
+        <div class="card">
+          <div class="use-zhuyin" style="font-size:20px;color:#888;margin-bottom:10px;">選出正確的量詞</div>
+          <div id="mw-q" class="measure-q"></div>
+        </div>
+        <div class="options-grid" id="mw-opts"></div>
+        <button class="btn" onclick="navBack()" style="margin-top:24px;color:#888;font-size:20px;background:none;">⬅️ 結束練習</button>
+      </div>`;
+    nextMeasureWord();
+}
+function nextMeasureWord() {
+    if (!measurePool.length) measurePool = shuffle([...DB.hunter.measure_word]);
+    const item = measurePool.pop();
+    currentQ = { ans: item.a, type: 'measure' };
+    document.getElementById('mw-q').textContent = item.q;
+    const opts = document.getElementById('mw-opts');
+    opts.innerHTML = '';
+    shuffle([...item.opts]).forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'opt-btn btn use-zhuyin';
+        btn.style.cssText = 'font-size:48px; min-width:110px;';
+        btn.textContent = opt;
+        btn.onclick = () => {
+            if (opt === item.a) { btn.classList.add('correct'); showFlash('✅ 答對！',true); addScore(); setTimeout(nextMeasureWord,800); }
+            else { btn.classList.add('wrong'); showFlash('❌ 再想想',false); }
+        };
+        opts.appendChild(btn);
+    });
+}
+
+// ════════════════════════════════════════
+//  應用題
+// ════════════════════════════════════════
+let wordProbPool = [];
+function startWordProblem() {
+    setNavTitle('應用題');
+    wordProbPool = shuffle([...DB.hunter.word_problems]);
+    const c = document.getElementById('app-container');
+    c.innerHTML = `
+      <div class="quiz-container" style="align-items:center;">
+        <div class="card">
+          <div id="wp-q" class="word-problem-text"></div>
+          <div id="wp-formula" class="formula-hint hidden"></div>
+        </div>
+        <div class="options-grid" id="wp-opts"></div>
+        <button class="btn" onclick="navBack()" style="margin-top:24px;color:#888;font-size:20px;background:none;">⬅️ 結束練習</button>
+      </div>`;
+    nextWordProblem();
+}
+function nextWordProblem() {
+    if (!wordProbPool.length) wordProbPool = shuffle([...DB.hunter.word_problems]);
+    const item = wordProbPool.pop();
+    currentQ = { ans: String(item.a), type: 'wordproblem' };
+    document.getElementById('wp-q').textContent = item.q;
+    document.getElementById('wp-formula').classList.add('hidden');
+    const opts = document.getElementById('wp-opts');
+    opts.innerHTML = '';
+    shuffle([...item.opts]).forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'opt-btn btn no-zhuyin';
+        btn.style.cssText = 'font-size:44px; min-width:120px;';
+        btn.textContent = opt;
+        btn.onclick = () => {
+            if (String(opt) === String(item.a)) {
+                btn.classList.add('correct'); showFlash('✅ 答對！',true); addScore();
+                const f = document.getElementById('wp-formula');
+                f.textContent = '✏️ ' + item.formula;
+                f.classList.remove('hidden');
+                setTimeout(nextWordProblem, 1200);
+            } else { btn.classList.add('wrong'); showFlash('❌ 再想想',false); }
+        };
+        opts.appendChild(btn);
+    });
+}
+
+// ════════════════════════════════════════
+//  幾何圖形計數
+// ════════════════════════════════════════
+const SHAPE_SVGS = {
+    triangle:  (x,y,s) => `<polygon points="${x},${y-s} ${x-s},${y+s} ${x+s},${y+s}" fill="#ff8a65" stroke="#e64a19" stroke-width="2"/>`,
+    circle:    (x,y,s) => `<circle cx="${x}" cy="${y}" r="${s}" fill="#4fc3f7" stroke="#0288d1" stroke-width="2"/>`,
+    square:    (x,y,s) => `<rect x="${x-s}" y="${y-s}" width="${s*2}" height="${s*2}" fill="#a5d6a7" stroke="#388e3c" stroke-width="2"/>`,
+    rectangle: (x,y,s) => `<rect x="${x-s*1.5}" y="${y-s*0.7}" width="${s*3}" height="${s*1.4}" fill="#ce93d8" stroke="#7b1fa2" stroke-width="2"/>`,
+};
+const SHAPE_NAMES = { triangle:'三角形', circle:'圓形', square:'正方形', rectangle:'長方形' };
+function startShapeCount() {
+    setNavTitle('幾何計數');
+    const c = document.getElementById('app-container');
+    c.innerHTML = `
+      <div class="quiz-container" style="align-items:center;">
+        <div class="card" style="padding:20px;">
+          <div id="sc-question" class="use-zhuyin" style="font-size:28px;color:#333;margin-bottom:12px;"></div>
+          <svg id="sc-svg" viewBox="0 0 400 220" width="100%" style="max-width:400px;border-radius:12px;background:#fafafa;"></svg>
+        </div>
+        <div class="options-grid" id="sc-opts"></div>
+        <button class="btn" onclick="navBack()" style="margin-top:24px;color:#888;font-size:20px;background:none;">⬅️ 結束練習</button>
+      </div>`;
+    nextShapeCount();
+}
+function nextShapeCount() {
+    const types = Object.keys(SHAPE_SVGS);
+    const target = types[Math.floor(Math.random()*types.length)];
+    const tCount = Math.floor(Math.random()*4)+2;
+    const others = shuffle(types.filter(t=>t!==target));
+    const allShapes = [];
+    for (let i=0;i<tCount;i++) allShapes.push(target);
+    const extra = Math.floor(Math.random()*3)+1;
+    for (let i=0;i<extra;i++) allShapes.push(others[i % others.length]);
+    const placed = shuffle(allShapes);
+    // 用 5×3 格子排版
+    const cols=5, rows=3, cw=80, rh=74;
+    const positions = [];
+    for (let r=0;r<rows;r++) for (let c=0;c<cols;c++) positions.push([c*cw+40, r*rh+37]);
+    const used = shuffle(positions).slice(0, placed.length);
+    let svgContent = '';
+    placed.forEach((shape, i) => { svgContent += SHAPE_SVGS[shape](used[i][0], used[i][1], 22); });
+    document.getElementById('sc-svg').innerHTML = svgContent;
+    document.getElementById('sc-question').textContent = `上面有幾個${SHAPE_NAMES[target]}？`;
+    currentQ = { ans: String(tCount), type: 'shapecount' };
+    const wrong = [tCount-1,tCount+1,tCount+2].filter(v=>v>0&&v!==tCount);
+    const opts = shuffle([tCount, ...wrong.slice(0,3)]).slice(0,4);
+    const optsEl = document.getElementById('sc-opts');
+    optsEl.innerHTML = '';
+    opts.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'opt-btn btn no-zhuyin';
+        btn.style.cssText = 'font-size:44px; min-width:110px;';
+        btn.textContent = opt + '個';
+        btn.onclick = () => {
+            if (String(opt) === String(tCount)) { btn.classList.add('correct'); showFlash('✅ 答對！',true); addScore(); setTimeout(nextShapeCount,800); }
+            else { btn.classList.add('wrong'); showFlash('❌ 再想想',false); }
+        };
+        optsEl.appendChild(btn);
+    });
+}
+
+// ════════════════════════════════════════
+//  規律題
+// ════════════════════════════════════════
+let patternPool = [];
+function startPattern() {
+    setNavTitle('規律題');
+    patternPool = shuffle([...DB.hunter.pattern]);
+    const c = document.getElementById('app-container');
+    c.innerHTML = `
+      <div class="quiz-container" style="align-items:center;">
+        <div class="card">
+          <div class="use-zhuyin" style="font-size:22px;color:#888;margin-bottom:8px;">找出 ？ 是多少？</div>
+          <div id="pt-row" class="pattern-row"></div>
+        </div>
+        <div class="options-grid" id="pt-opts"></div>
+        <button class="btn" onclick="navBack()" style="margin-top:24px;color:#888;font-size:20px;background:none;">⬅️ 結束練習</button>
+      </div>`;
+    nextPattern();
+}
+function nextPattern() {
+    if (!patternPool.length) patternPool = shuffle([...DB.hunter.pattern]);
+    const item = patternPool.pop();
+    currentQ = { ans: String(item.a), type:'pattern' };
+    const row = document.getElementById('pt-row');
+    row.innerHTML = '';
+    item.seq.forEach((v, i) => {
+        if (i > 0) { const arr = document.createElement('div'); arr.className='pattern-arrow'; arr.textContent='→'; row.appendChild(arr); }
+        const box = document.createElement('div');
+        box.className = v === null ? 'pattern-num pattern-blank' : 'pattern-num';
+        box.textContent = v === null ? '？' : v;
+        row.appendChild(box);
+    });
+    const a = item.a;
+    const wrongs = [];
+    for (let d of [-3,-2,-1,1,2,3,5,10]) { const w=a+d; if(w>0&&w!==a&&!wrongs.includes(w)) wrongs.push(w); }
+    const opts = shuffle([a, ...shuffle(wrongs).slice(0,3)]);
+    const optsEl = document.getElementById('pt-opts');
+    optsEl.innerHTML = '';
+    opts.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'opt-btn btn no-zhuyin';
+        btn.style.cssText = 'font-size:44px; min-width:110px;';
+        btn.textContent = opt;
+        btn.onclick = () => {
+            if (String(opt) === String(a)) { btn.classList.add('correct'); showFlash('✅ 答對！',true); addScore(); setTimeout(nextPattern,800); }
+            else { btn.classList.add('wrong'); showFlash('❌ 再想想',false); }
+        };
+        optsEl.appendChild(btn);
+    });
+}
+
+// ════════════════════════════════════════
+//  日曆推算進階
+// ════════════════════════════════════════
+function startCalendarAdv() {
+    setNavTitle('日曆推算');
+    const c = document.getElementById('app-container');
+    c.innerHTML = `
+      <div class="quiz-container" style="align-items:center;">
+        <div class="card" id="cadv-card" style="padding:16px;"></div>
+        <div class="use-zhuyin" id="cadv-question" style="font-size:28px;color:#333;margin:16px 0;text-align:center;max-width:550px;"></div>
+        <div class="options-grid" id="cadv-opts"></div>
+        <button class="btn" onclick="navBack()" style="margin-top:24px;color:#888;font-size:20px;background:none;">⬅️ 結束練習</button>
+      </div>`;
+    nextCalendarAdv();
+}
+function nextCalendarAdv() {
+    const monthNames  = ['一','二','三','四','五','六','七','八','九','十','十一','十二'];
+    const daysInMonth = [31,28,31,30,31,30,31,31,30,31,30,31];
+    const weekNames   = ['日','一','二','三','四','五','六'];
+    const mIdx     = Math.floor(Math.random()*12);
+    const month    = mIdx + 1;
+    const days     = daysInMonth[mIdx];
+    const startDay = Math.floor(Math.random()*7);
+
+    // 隨機選題型：0=幾號是星期幾, 1=昨天/明天/後天是幾號, 2=再過X天是幾月幾日（含跨月）, 3=這個月有幾個星期X
+    const qType = Math.floor(Math.random()*4);
+    let question='', ans='', opts=[];
+
+    if (qType === 0) {
+        // 幾號是星期幾
+        const day = Math.floor(Math.random()*days)+1;
+        const wIdx = (startDay+day-1)%7;
+        question = `${month} 月 ${day} 號是星期幾？`;
+        ans = `星期${weekNames[wIdx]}`;
+        opts = shuffle([ans, ...shuffle(weekNames.filter((_,i)=>i!==wIdx).map(w=>`星期${w}`)).slice(0,3)]);
+    } else if (qType === 1) {
+        // 昨天/明天/後天
+        const offsets = [[-1,'昨天'],[1,'明天'],[2,'後天']];
+        const [offset, label] = offsets[Math.floor(Math.random()*offsets.length)];
+        const day = Math.floor(Math.random()*(days-4))+3;
+        const tDay = day + offset;
+        const wIdx = (startDay+day-1)%7;
+        const tWIdx = (startDay+tDay-1)%7;
+        question = `${month} 月 ${day} 號是星期${weekNames[wIdx]}，\n${label}是幾號？星期幾？`;
+        ans = `${tDay} 號，星期${weekNames[tWIdx]}`;
+        const wrongs = [day+offset+1, day+offset-1, day+offset+7]
+            .filter(d=>d>=1&&d<=days&&d!==tDay)
+            .map(d=>`${d} 號，星期${weekNames[(startDay+d-1)%7]}`);
+        opts = shuffle([ans, ...shuffle(wrongs).slice(0,3)]);
+    } else if (qType === 2) {
+        // 再過X天是幾月幾日（可能跨月）
+        const delta = Math.floor(Math.random()*7)+3;
+        const day   = Math.floor(Math.random()*(days-10))+3;
+        const tDay  = day + delta;
+        if (tDay <= days) {
+            question = `${month} 月 ${day} 號，再過 ${delta} 天是幾月幾日？`;
+            ans = `${month} 月 ${tDay} 號`;
+            const wrongs = [tDay+1, tDay-1, tDay+7].filter(d=>d>=1&&d<=days&&d!==tDay).map(d=>`${month} 月 ${d} 號`);
+            opts = shuffle([ans, ...shuffle(wrongs).slice(0,3)]);
+        } else {
+            const nMonth = (mIdx+1)%12+1;
+            const nDay   = tDay - days;
+            question = `${month} 月 ${day} 號，再過 ${delta} 天是幾月幾日？`;
+            ans = `${nMonth} 月 ${nDay} 號`;
+            const wrongs = [`${month} 月 ${tDay} 號`, `${nMonth} 月 ${nDay+1} 號`, `${nMonth} 月 ${nDay+2} 號`].filter(s=>s!==ans);
+            opts = shuffle([ans, ...wrongs.slice(0,3)]);
+        }
+    } else {
+        // 這個月有幾個星期X
+        const targetW = Math.floor(Math.random()*7);
+        const count = Math.floor((days - ((targetW - startDay + 7)%7) - 1)/7)+1;
+        question = `${monthNames[mIdx]} 月這個月有幾個星期${weekNames[targetW]}？`;
+        ans = `${count} 個`;
+        const wrongs = [count-1, count+1].filter(v=>v>0&&v!==count).map(v=>`${v} 個`);
+        wrongs.push(`${count+2} 個`);
+        opts = shuffle([ans, ...shuffle(wrongs).slice(0,3)]);
+    }
+
+    currentQ = { ans, type:'calendaradv' };
+
+    // 畫月曆
+    const calCard = document.getElementById('cadv-card');
+    if (!calCard) return;
+    let html = `<div class="use-zhuyin" style="font-size:22px;font-weight:bold;color:#333;margin-bottom:10px;">${monthNames[mIdx]} 月</div>
+      <table style="width:100%;border-collapse:collapse;font-family:'ZhuyinFont','Microsoft JhengHei',sans-serif;"><tr>`;
+    weekNames.forEach(w => {
+        const color = w==='日'?'#e74c3c':w==='六'?'#4a90e2':'#555';
+        html += `<th style="padding:6px 2px;font-size:16px;color:${color};">${w}</th>`;
+    });
+    html += '</tr><tr>';
+    for (let i=0;i<startDay;i++) html += '<td></td>';
+    for (let d=1;d<=days;d++) {
+        const col=(startDay+d-1)%7;
+        const color=col===0?'#e74c3c':col===6?'#4a90e2':'#333';
+        html += `<td style="text-align:center;padding:5px 2px;font-size:18px;color:${color};">${d}</td>`;
+        if (col===6&&d<days) html += '</tr><tr>';
+    }
+    html += '</tr></table>';
+    calCard.innerHTML = html;
+    document.getElementById('cadv-question').textContent = question;
+    document.getElementById('cadv-opts').innerHTML = '';
+    const optsEl = document.getElementById('cadv-opts');
+    opts.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'opt-btn btn use-zhuyin';
+        btn.style.cssText = 'font-size:26px; min-width:130px;';
+        btn.textContent = opt;
+        btn.onclick = () => {
+            if (opt === ans) { btn.classList.add('correct'); showFlash('✅ 答對！',true); addScore(); setTimeout(nextCalendarAdv,1000); }
+            else { btn.classList.add('wrong'); showFlash('❌ 再想想',false); }
+        };
+        optsEl.appendChild(btn);
+    });
 }
 </script>
 </body>
